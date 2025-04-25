@@ -2,4 +2,12 @@
 <resources>
 
     <style name="Theme.ByteMe" parent="android:Theme.Material.Light.NoActionBar" />
+    <color name="splash_background_color">#FFA500</color>
+
+    <style name="SplashTheme" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/splash_background_color</item>
+        <item name="postSplashScreenTheme">@style/Theme.ByteMe</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/animated_logo</item>
+    </style>
+
 </resources>
