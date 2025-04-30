@@ -69,6 +69,7 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.core.splashscreen)
     implementation(libs.hilt.android)
+    implementation(libs.google.accompanist.systemuicontroller)
     kapt(libs.hilt.android.compiler)
     annotationProcessor(libs.androidx.room.compiler)
     ksp(libs.androidx.room.compiler)

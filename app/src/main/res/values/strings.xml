@@ -8,4 +8,9 @@
     <string name="facebook">Facebook</string>
     <string name="google">Google</string>
     <string name="sign">_____ Sign up _____</string>
+    <string name="sign2">Sign in with</string>
+    <string name="sign_up">Sign up</string>
+    <string name="password">Password</string>
+    <string name="email">E_mail</string>
+    <string name="nickname">Nickname</string>
 </resources>

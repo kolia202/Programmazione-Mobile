@@ -20,6 +20,7 @@ import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.example.byteme.data.FoodApi
 import com.example.byteme.ui.features.authentication.AuthenticationScreen
+import com.example.byteme.ui.features.authentication.signup.SignUpScreen
 import com.example.byteme.ui.theme.ByteMeTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -71,8 +72,9 @@ class MainActivity : ComponentActivity() {
             ByteMeTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Box(
-                        modifier = Modifier.padding(innerPadding)) {}
-                    AuthenticationScreen()
+                        modifier = Modifier.padding(innerPadding)) {
+                        SignUpScreen()
+                    }
                 }
             }
         }
@@ -83,21 +85,5 @@ class MainActivity : ComponentActivity() {
             delay(1000)
             showSplashScreen = false
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Helluoo $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    ByteMeTheme {
-        Greeting("Android")
     }
 }

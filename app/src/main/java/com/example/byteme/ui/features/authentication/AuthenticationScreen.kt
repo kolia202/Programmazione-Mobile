@@ -36,8 +36,10 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.byteme.R
+import com.example.byteme.ui.GroupSocialButtons
 import com.example.byteme.ui.theme.Green
 import com.example.byteme.ui.theme.Orange
+import okhttp3.internal.wait
 
 
 @Composable
@@ -50,7 +52,6 @@ fun AuthenticationScreen() {
         ),
         startY = imageSize.value.height.toFloat() / 2,
     )
-
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
             painter = painterResource(id = R.drawable.background),
@@ -62,13 +63,11 @@ fun AuthenticationScreen() {
                     imageSize.value = it.size
                 }
         )
-
         Box(
             modifier = Modifier
                 .matchParentSize()
                 .background(brush = brush)
         )
-
         Button(
             onClick = { /*TODO*/ },
             colors = ButtonDefaults.buttonColors(containerColor = Color.White.copy(0.75f)),
@@ -77,9 +76,11 @@ fun AuthenticationScreen() {
                 .padding(8.dp)
                 .padding(top = 8.dp)
         ) {
-            Text(text = stringResource(id = R.string.skip), color = Green)
+            Text(text = stringResource(id = R.string.skip),
+                color = Color.Black,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold)
         }
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -87,20 +88,21 @@ fun AuthenticationScreen() {
         ) {
             Text(
                 text = stringResource(id = R.string.welcome),
-                color = Orange,
+                color = Green,
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 fontSize = 50.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                fontFamily = androidx.compose.ui.text.font.FontFamily.Cursive
             )
             Text(
                 text = stringResource(id = R.string.nameApp),
-                color = Orange,
+                color = Green,
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 fontSize = 50.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                fontFamily = androidx.compose.ui.text.font.FontFamily.Cursive
             )
         }
-
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -108,46 +110,7 @@ fun AuthenticationScreen() {
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = stringResource(id = R.string.sign), color = Orange)
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Button(
-                    onClick = { /*TODO*/ },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.White.copy(0.75f)),
-                    shape = RoundedCornerShape(32.dp)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.ic_facebook),
-                            contentDescription = null,
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = stringResource(id = R.string.facebook), color = Green)
-                    }
-                }
-                Spacer(modifier = Modifier.width(16.dp))
-                Button(
-                    onClick = { /*TODO*/ },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.White.copy(0.75f)),
-                    shape = RoundedCornerShape(32.dp)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.ic_google),
-                            contentDescription = null,
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = stringResource(id = R.string.google), color = Green)
-                    }
-                }
+            GroupSocialButtons(onFacebookClick = { /*TODO*/ }) {
             }
             Button(
                 onClick = { /*TODO*/ },
@@ -157,8 +120,8 @@ fun AuthenticationScreen() {
             ) {
                 Text(
                     text = stringResource(id = R.string.signEmail),
-                    color = Green
-                )
+                    color = Color.Black,
+                    fontSize = 16.sp)
             }
             TextButton(
                 onClick = { /*TODO*/ },
@@ -166,7 +129,9 @@ fun AuthenticationScreen() {
             ) {
                 Text(
                     text = stringResource(id = R.string.login),
-                    color = Orange
+                    color = Color.White,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
                 )
             }
         }
