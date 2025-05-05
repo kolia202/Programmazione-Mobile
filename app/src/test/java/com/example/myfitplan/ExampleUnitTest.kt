@@ -1,4 +1,4 @@
-package com.example.byteme
+package com.example.myfitplan
 
 import org.junit.Test
 

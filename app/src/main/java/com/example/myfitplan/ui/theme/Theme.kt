@@ -1,4 +1,4 @@
-package com.example.byteme.ui.theme
+package com.example.myfitplan.ui.theme
 
 import android.app.Activity
 import android.os.Build
@@ -12,14 +12,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Orange,
-    secondary = Orange,
+    primary = Purple80,
+    secondary = PurpleGrey80,
     tertiary = Pink80
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Orange,
-    secondary = Orange,
+    primary = Purple40,
+    secondary = PurpleGrey40,
     tertiary = Pink40
 
     /* Other default colors to override
@@ -34,10 +34,10 @@ private val LightColorScheme = lightColorScheme(
 )
 
 @Composable
-fun ByteMeTheme(
+fun MyFitPlanTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = false,
+    dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {

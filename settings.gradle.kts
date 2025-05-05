@@ -19,5 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "ByteMe"
+rootProject.name = "MyFitPlan"
 include(":app")
+ 
