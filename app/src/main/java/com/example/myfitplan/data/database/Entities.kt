@@ -104,8 +104,6 @@ data class ExerciseInsideDay(
     val duration: Int
 )
 
-// Relations
-
 data class FoodInsideMealWithFood(
     @Embedded val foodInsideMeal: FoodInsideMeal,
     @Embedded val food: Food

@@ -2,6 +2,7 @@ package com.example.myfitplan.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import kotlinx.serialization.Serializable
@@ -20,10 +21,14 @@ sealed interface MyFitPlanRoute {
 }
 
 @Composable
-fun MyFitPlanNavGraph(navController: NavHostController) {
+fun MyFitPlanNavGraph(
+    navController: NavHostController,
+    modifier: Modifier = Modifier
+) {
     NavHost(
         navController = navController,
         startDestination = MyFitPlanRoute.Login,
+        modifier = modifier
     ) {
         composable<MyFitPlanRoute.Login> {
             LoginScreen(navController)

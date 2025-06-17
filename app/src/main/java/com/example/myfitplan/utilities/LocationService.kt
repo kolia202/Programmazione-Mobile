@@ -25,7 +25,6 @@ class LocationService(private val ctx: Context) {
 
     private val fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(ctx)
 
-    // VERSIONE COMPATIBILE (NON Builder)
     @Suppress("DEPRECATION")
     private val locationRequest = LocationRequest.create().apply {
         interval = 10000
