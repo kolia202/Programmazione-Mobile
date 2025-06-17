@@ -13,9 +13,11 @@ import com.example.myfitplan.ui.MyFitPlanNavGraph
 import com.example.myfitplan.ui.screens.theme.ThemeScreen
 import com.example.myfitplan.ui.screens.theme.ThemeViewModel
 import com.example.myfitplan.ui.theme.MyFitPlanTheme
+import com.example.myfitplan.utilities.LocationService
 import org.koin.androidx.viewmodel.ext.android.getViewModel
 
 class MainActivity : ComponentActivity() {
+    lateinit var locationService: LocationService
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
