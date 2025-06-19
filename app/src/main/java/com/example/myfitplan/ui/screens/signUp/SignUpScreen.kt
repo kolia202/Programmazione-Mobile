@@ -17,6 +17,8 @@ import androidx.compose.material.icons.filled.Height
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,6 +29,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -40,9 +43,12 @@ fun SignUpScreen(navController: NavController) {
     val viewModel: SignUpViewModel = koinViewModel()
     val state by viewModel.uiState.collectAsState()
 
+    var passwordVisible by remember { mutableStateOf(false) }
+    var confirmPasswordVisible by remember { mutableStateOf(false) }
+
     LaunchedEffect(state.success) {
         if (state.success) {
-            navController.navigate(MyFitPlanRoute.Theme) {
+            navController.navigate(MyFitPlanRoute.Login) {
                 popUpTo(MyFitPlanRoute.SignUp) { inclusive = true }
             }
         }
@@ -71,7 +77,6 @@ fun SignUpScreen(navController: NavController) {
             Box(
                 modifier = Modifier
                     .size(110.dp)
-                    .clip(CircleShape)
                     .background(Color.White),
                 contentAlignment = Alignment.Center
             ) {
@@ -83,7 +88,7 @@ fun SignUpScreen(navController: NavController) {
             }
 
             Text(
-                text = "SingUp",
+                text = "SignUp",
                 style = MaterialTheme.typography.headlineLarge.copy(
                     fontWeight = FontWeight.Bold,
                     fontSize = 22.sp,
@@ -121,7 +126,15 @@ fun SignUpScreen(navController: NavController) {
                 label = { Text("Password") },
                 leadingIcon = { Icon(Icons.Default.Lock, null) },
                 singleLine = true,
-                visualTransformation = PasswordVisualTransformation(),
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                trailingIcon = {
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(
+                            imageVector = if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                            contentDescription = if (passwordVisible) "Hide password" else "Show password"
+                        )
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 2.dp)
@@ -133,7 +146,15 @@ fun SignUpScreen(navController: NavController) {
                 label = { Text("Confirm Password") },
                 leadingIcon = { Icon(Icons.Default.Lock, null) },
                 singleLine = true,
-                visualTransformation = PasswordVisualTransformation(),
+                visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                trailingIcon = {
+                    IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                        Icon(
+                            imageVector = if (confirmPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                            contentDescription = if (confirmPasswordVisible) "Hide password" else "Show password"
+                        )
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 2.dp)
