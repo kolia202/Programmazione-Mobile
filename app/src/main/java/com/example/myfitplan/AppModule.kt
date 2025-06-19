@@ -10,6 +10,7 @@ import com.example.myfitplan.data.repositories.DatastoreRepository
 import com.example.myfitplan.data.repositories.MyFitPlanRepositories
 import com.example.myfitplan.data.repositories.ThemeRepository
 import com.example.myfitplan.ui.screens.login.LoginViewModel
+import com.example.myfitplan.ui.screens.signUp.SignUpViewModel
 import com.example.myfitplan.ui.screens.theme.ThemeViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
@@ -37,5 +38,6 @@ val appModule = module {
     single { DatastoreRepository(get()) }
     viewModel { ThemeViewModel(get()) }
     viewModel { LoginViewModel(get(), get()) }
+    viewModel { SignUpViewModel(get(), get()) }
     single { androidContext().dataStore }
 }
