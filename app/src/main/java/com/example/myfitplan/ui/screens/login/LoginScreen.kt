@@ -4,7 +4,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
@@ -15,7 +14,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -35,24 +33,8 @@ fun LoginScreen(navController: NavController) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
-    var rememberMe by remember { mutableStateOf(false) }
-    var initialLoad by remember { mutableStateOf(true) }
-
-    LaunchedEffect(Unit) {
-        if (initialLoad) {
-            val user = viewModel.loadLastUser()
-            if (user != null) {
-                email = user.email
-                password = user.password
-                rememberMe = true
-            } else {
-                email = ""
-                password = ""
-                rememberMe = false
-            }
-            initialLoad = false
-        }
-    }
+    var emailError by remember { mutableStateOf(false) }
+    var passwordError by remember { mutableStateOf(false) }
 
     if (state.success) {
         LaunchedEffect(Unit) {
@@ -110,20 +92,35 @@ fun LoginScreen(navController: NavController) {
 
                 OutlinedTextField(
                     value = email,
-                    onValueChange = { email = it },
+                    onValueChange = {
+                        email = it
+                        emailError = false
+                    },
                     label = { Text("Email") },
                     leadingIcon = {
                         Icon(Icons.Default.Email, contentDescription = "Email Icon")
                     },
                     singleLine = true,
+                    isError = emailError,
                     shape = RoundedCornerShape(14.dp),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 4.dp)
                 )
+                if (emailError) {
+                    Text(
+                        text = "Email required",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.align(Alignment.Start)
+                    )
+                }
                 OutlinedTextField(
                     value = password,
-                    onValueChange = { password = it },
+                    onValueChange = {
+                        password = it
+                        passwordError = false
+                    },
                     label = { Text("Password") },
                     leadingIcon = {
                         Icon(Icons.Default.Lock, contentDescription = "Password Icon")
@@ -137,26 +134,19 @@ fun LoginScreen(navController: NavController) {
                         }
                     },
                     singleLine = true,
+                    isError = passwordError,
                     shape = RoundedCornerShape(14.dp),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 4.dp),
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation()
                 )
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 8.dp, bottom = 16.dp)
-                ) {
-                    Checkbox(
-                        checked = rememberMe,
-                        onCheckedChange = { rememberMe = it }
-                    )
+                if (passwordError) {
                     Text(
-                        text = "Remember me",
+                        text = "Password required",
+                        color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(start = 8.dp)
+                        modifier = Modifier.align(Alignment.Start)
                     )
                 }
                 if (state.error != null) {
@@ -171,7 +161,11 @@ fun LoginScreen(navController: NavController) {
                 }
                 Button(
                     onClick = {
-                        viewModel.login(email, password, rememberMe)
+                        emailError = email.isBlank()
+                        passwordError = password.isBlank()
+                        if (!emailError && !passwordError) {
+                            viewModel.login(email, password)
+                        }
                     },
                     shape = RoundedCornerShape(14.dp),
                     modifier = Modifier

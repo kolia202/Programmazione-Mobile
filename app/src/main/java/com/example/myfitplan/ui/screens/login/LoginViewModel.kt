@@ -7,7 +7,6 @@ import com.example.myfitplan.data.repositories.DatastoreRepository
 import com.example.myfitplan.data.repositories.MyFitPlanRepositories
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 data class LoginState(
@@ -24,23 +23,15 @@ class LoginViewModel(
     private val _state = MutableStateFlow(LoginState())
     val state: StateFlow<LoginState> = _state
 
-    suspend fun loadLastUser(): User? {
-        return datastore.user.firstOrNull()
-    }
-
-    fun login(email: String, password: String, rememberMe: Boolean) {
+    fun login(email: String, password: String) {
         viewModelScope.launch {
             _state.value = LoginState(isLoading = true)
             try {
                 val user: User = repo.login(email, password)
-                if (rememberMe) {
-                    datastore.saveUser(user)
-                } else {
-                    datastore.removeUser()
-                }
+                datastore.saveUser(user)
                 _state.value = LoginState(success = true)
             } catch (e: Exception) {
-                _state.value = LoginState(error = "Login fallito: ${e.message}")
+                _state.value = LoginState(error = "Invalid credentials or user does not exist")
             }
         }
     }
