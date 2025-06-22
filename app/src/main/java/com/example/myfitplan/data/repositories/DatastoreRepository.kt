@@ -11,6 +11,7 @@ import com.example.myfitplan.data.database.GenderType
 import com.example.myfitplan.data.database.GoalType
 import com.example.myfitplan.data.database.User
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 class DatastoreRepository(
@@ -94,5 +95,14 @@ class DatastoreRepository(
 
     suspend fun removeUser() = dataStore.edit { prefs ->
         prefs.clear()
+    }
+
+    suspend fun getOrSetStartDateMillis(todayMillis: Long): Long {
+        val key = stringPreferencesKey("first_open_date_millis")
+        val prefs = dataStore.data.first()
+        val current = prefs[key]
+        if (current != null) return current.toLong()
+        dataStore.edit { it[key] = todayMillis.toString() }
+        return todayMillis
     }
 }

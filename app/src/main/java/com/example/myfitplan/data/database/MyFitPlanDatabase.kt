@@ -9,7 +9,7 @@ import androidx.room.RoomDatabase
         Food::class,
         FoodInsideMeal::class,
         Exercise::class,
-        ExerciseInsideDay::class
+        ExerciseInsideDay::class,
     ],
     version = 1,
     exportSchema = false

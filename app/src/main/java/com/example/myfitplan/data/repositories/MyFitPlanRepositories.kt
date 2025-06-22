@@ -20,7 +20,7 @@ class MyFitPlanRepositories(
     private val foodDAO: FoodDAO,
     private val foodInsideMealDAO: FoodInsideMealDAO,
     private val exerciseDAO: ExerciseDAO,
-    private val exerciseInsideDayDAO: ExerciseInsideDayDAO
+    private val exerciseInsideDayDAO: ExerciseInsideDayDAO,
 ) {
 
     /* Users */

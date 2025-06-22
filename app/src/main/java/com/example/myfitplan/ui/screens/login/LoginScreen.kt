@@ -38,7 +38,7 @@ fun LoginScreen(navController: NavController) {
 
     if (state.success) {
         LaunchedEffect(Unit) {
-            navController.navigate(MyFitPlanRoute.Theme) {
+            navController.navigate(MyFitPlanRoute.Home) {
                 popUpTo(MyFitPlanRoute.Login) { inclusive = true }
             }
         }

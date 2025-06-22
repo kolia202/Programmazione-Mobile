@@ -8,6 +8,7 @@ import androidx.navigation.NavHostController
 import kotlinx.serialization.Serializable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.myfitplan.ui.screens.home.HomeScreen
 import com.example.myfitplan.ui.screens.theme.ThemeScreen
 import com.example.myfitplan.ui.screens.theme.ThemeViewModel
 import com.example.myfitplan.ui.screens.login.LoginScreen
@@ -18,6 +19,7 @@ sealed interface MyFitPlanRoute {
     @Serializable data object Login : MyFitPlanRoute
     @Serializable data object SignUp : MyFitPlanRoute
     @Serializable data object Theme : MyFitPlanRoute
+    @Serializable data object Home : MyFitPlanRoute
 }
 
 @Composable
@@ -27,7 +29,7 @@ fun MyFitPlanNavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = MyFitPlanRoute.Login,
+        startDestination = MyFitPlanRoute.Home,
         modifier = modifier
     ) {
         composable<MyFitPlanRoute.Login> {
@@ -35,6 +37,9 @@ fun MyFitPlanNavGraph(
         }
         composable<MyFitPlanRoute.SignUp> {
             SignUpScreen(navController)
+        }
+        composable<MyFitPlanRoute.Home> {
+            HomeScreen(navController)
         }
         composable<MyFitPlanRoute.Theme> {
             val viewModel: ThemeViewModel = koinViewModel()

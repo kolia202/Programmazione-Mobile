@@ -65,6 +65,8 @@ dependencies {
     implementation(libs.androidx.foundation.layout.android)
     implementation(libs.play.services.location)
     implementation(libs.androidx.browser)
+    implementation(libs.androidx.foundation.layout.android)
+    implementation(libs.androidx.foundation.android)
     annotationProcessor(libs.androidx.room.compiler)
     ksp(libs.androidx.room.compiler)
     testImplementation(libs.junit)

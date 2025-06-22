@@ -19,6 +19,7 @@ room ="2.6.1"
 foundationLayoutAndroid = "1.7.2"
 playServicesLocation = "21.3.0"
 androidbrowserhelper = "2.6.2"
+foundationAndroid = "1.7.2"
 
 [libraries]
 androidx-browser = { module = "androidx.browser:browser", version.ref = "browser" }
@@ -49,6 +50,7 @@ androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "
 androidx-foundation-layout-android = { group = "androidx.compose.foundation", name = "foundation-layout-android", version.ref = "foundationLayoutAndroid" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 androidbrowserhelper = { group = "com.google.androidbrowserhelper", name = "androidbrowserhelper", version.ref = "androidbrowserhelper" }
+androidx-foundation-android = { group = "androidx.compose.foundation", name = "foundation-android", version.ref = "foundationAndroid" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
