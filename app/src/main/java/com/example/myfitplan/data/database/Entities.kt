@@ -113,3 +113,11 @@ data class ExerciseInsideDayWithExercise(
     @Embedded val exerciseInsideDay: ExerciseInsideDay,
     @Embedded val exercise: Exercise
 )
+
+@Entity(primaryKeys = ["email", "date"])
+data class StepCounter(
+    val email: String,
+    val date: String,
+    val steps: Int,
+    val goal: Int = 1000
+)

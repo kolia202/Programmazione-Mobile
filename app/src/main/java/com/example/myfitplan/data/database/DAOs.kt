@@ -87,3 +87,12 @@ interface ExerciseInsideDayDAO {
     @Query("DELETE FROM ExerciseInsideDay WHERE exerciseName = :exerciseName AND emailEID = :email")
     suspend fun removeExerciseInsideAllDays(exerciseName: String, email: String)
 }
+
+@Dao
+interface StepCounterDAO {
+    @Query("SELECT * FROM StepCounter WHERE email = :email AND date = :date")
+    fun getSteps(email: String, date: String): Flow<StepCounter?>
+
+    @Upsert
+    suspend fun upsert(stepCounter: StepCounter)
+}

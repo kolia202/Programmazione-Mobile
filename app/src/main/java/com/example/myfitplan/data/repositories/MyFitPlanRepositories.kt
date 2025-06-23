@@ -11,6 +11,8 @@ import com.example.myfitplan.data.database.FoodInsideMeal
 import com.example.myfitplan.data.database.FoodInsideMealDAO
 import com.example.myfitplan.data.database.FoodInsideMealWithFood
 import com.example.myfitplan.data.database.MealType
+import com.example.myfitplan.data.database.StepCounter
+import com.example.myfitplan.data.database.StepCounterDAO
 import com.example.myfitplan.data.database.User
 import com.example.myfitplan.data.database.UserDAO
 import kotlinx.coroutines.flow.Flow
@@ -21,6 +23,7 @@ class MyFitPlanRepositories(
     private val foodInsideMealDAO: FoodInsideMealDAO,
     private val exerciseDAO: ExerciseDAO,
     private val exerciseInsideDayDAO: ExerciseInsideDayDAO,
+    private val stepCounterDAO: StepCounterDAO
 ) {
 
     /* Users */
@@ -64,4 +67,7 @@ class MyFitPlanRepositories(
     suspend fun upsertExerciseInsideDay(item: ExerciseInsideDay) = exerciseInsideDayDAO.upsert(item)
     suspend fun deleteExerciseInsideDay(item: ExerciseInsideDay) =
         exerciseInsideDayDAO.removeExerciseInsideDay(item.exerciseName, item.date, item.emailEID)
+
+    fun getSteps(email: String, date: String) = stepCounterDAO.getSteps(email, date)
+    suspend fun upsertSteps(stepCounter: StepCounter) = stepCounterDAO.upsert(stepCounter)
 }

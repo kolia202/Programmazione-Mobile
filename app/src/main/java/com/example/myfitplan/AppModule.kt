@@ -13,6 +13,7 @@ import com.example.myfitplan.ui.screens.home.HomeViewModel
 import com.example.myfitplan.ui.screens.login.LoginViewModel
 import com.example.myfitplan.ui.screens.signUp.SignUpViewModel
 import com.example.myfitplan.ui.screens.theme.ThemeViewModel
+import com.example.myfitplan.utilities.StepSensorManager
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -34,12 +35,14 @@ val appModule = module {
         get<MyFitPlanDatabase>().foodDAO(),
         get<MyFitPlanDatabase>().foodInsideMealDAO(),
         get<MyFitPlanDatabase>().exerciseDAO(),
-        get<MyFitPlanDatabase>().exerciseInsideDayDAO())
-    }
+        get<MyFitPlanDatabase>().exerciseInsideDayDAO(),
+        get<MyFitPlanDatabase>().stepCounterDAO()
+    ) }
     single { DatastoreRepository(get()) }
+    single { StepSensorManager(get()) }
     viewModel { ThemeViewModel(get()) }
     viewModel { LoginViewModel(get(), get()) }
     viewModel { SignUpViewModel(get(), get()) }
-    viewModel { HomeViewModel(get(), get()) }
+    viewModel { HomeViewModel(get(), get(), get()) }
     single { androidContext().dataStore }
 }

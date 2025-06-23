@@ -68,6 +68,7 @@ dependencies {
     implementation(libs.androidx.foundation.layout.android)
     implementation(libs.androidx.foundation.android)
     annotationProcessor(libs.androidx.room.compiler)
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.34.0")
     ksp(libs.androidx.room.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

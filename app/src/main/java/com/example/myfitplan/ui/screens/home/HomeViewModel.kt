@@ -5,9 +5,11 @@ import androidx.lifecycle.viewModelScope
 import com.example.myfitplan.data.database.MealType
 import com.example.myfitplan.data.database.User
 import com.example.myfitplan.data.database.FoodInsideMealWithFood
+import com.example.myfitplan.data.database.StepCounter
 import com.example.myfitplan.data.repositories.MyFitPlanRepositories
 import com.example.myfitplan.data.repositories.DatastoreRepository
 import com.example.myfitplan.utilities.DateUtils
+import com.example.myfitplan.utilities.StepSensorManager
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
@@ -23,12 +25,17 @@ data class HomeUiState(
     val currentDate: String = "",
     val user: User? = null,
     val meals: Map<MealType, List<FoodInsideMealWithFood>> = emptyMap(),
-    val summary: MacroSummary = MacroSummary()
+    val summary: MacroSummary = MacroSummary(),
+    val steps: Int = 0,
+    val stepGoal: Int = 1000,
+    val stepKcal: Int = 0,
+    val stepKm: Float = 0f
 )
 
 class HomeViewModel(
     private val repositories: MyFitPlanRepositories,
-    private val datastoreRepository: DatastoreRepository
+    private val datastoreRepository: DatastoreRepository,
+    private val stepSensorManager: StepSensorManager
 ) : ViewModel() {
 
     private val today = DateUtils.getToday()
@@ -50,6 +57,9 @@ class HomeViewModel(
         }
         setDate(today)
         observeUser()
+        observeStepGoal()
+        observeSteps()
+        stepSensorManager.startListening()
     }
 
     private fun observeUser() {
@@ -106,6 +116,58 @@ class HomeViewModel(
             protein = protein.toInt(),
             fat = fat.toInt()
         )
+    }
+
+    // --- GESTIONE PASSI & GOAL ---
+    private fun observeSteps() {
+        viewModelScope.launch {
+            val user = _uiState.value.user
+            val date = DateUtils.formattedDate(DateUtils.getToday())
+
+            // Osserva il sensore in tempo reale
+            stepSensorManager.steps.collect { sensorSteps ->
+                // Salva nel DB
+                user?.let {
+                    repositories.upsertSteps(
+                        StepCounter(it.email, date, sensorSteps, _uiState.value.stepGoal)
+                    )
+                }
+                val kcal = stepsToKcal(sensorSteps, user)
+                val km = stepsToKm(sensorSteps)
+                _uiState.update {
+                    it.copy(
+                        steps = sensorSteps,
+                        stepKcal = kcal,
+                        stepKm = km
+                    )
+                }
+            }
+        }
+    }
+
+    private fun observeStepGoal() {
+        viewModelScope.launch {
+            datastoreRepository.stepGoal.collect { goal ->
+                _uiState.update { it.copy(stepGoal = goal) }
+            }
+        }
+    }
+
+    fun setStepGoal(newGoal: Int) {
+        viewModelScope.launch {
+            datastoreRepository.setStepGoal(newGoal)
+            val user = _uiState.value.user ?: return@launch
+            val date = DateUtils.formattedDate(DateUtils.getToday())
+            val stepCounter = StepCounter(user.email, date, _uiState.value.steps, newGoal)
+            repositories.upsertSteps(stepCounter)
+            _uiState.update { it.copy(stepGoal = newGoal) }
+        }
+    }
+
+    fun stepsToKm(steps: Int): Float = (steps * 0.7f) / 1000f
+    fun stepsToKcal(steps: Int, user: User?): Int {
+        val weight = user?.weight ?: 70f
+        return ((steps * weight * 0.0005f)).toInt()
     }
 
     fun getSelectedDate(): String = DateUtils.formattedDate(DateUtils.getToday())
