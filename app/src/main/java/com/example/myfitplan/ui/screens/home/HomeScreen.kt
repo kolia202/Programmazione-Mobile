@@ -24,12 +24,11 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.myfitplan.data.database.MealType
 import com.example.myfitplan.data.database.FoodInsideMealWithFood
+import com.example.myfitplan.ui.MyFitPlanRoute
 import com.example.myfitplan.ui.composables.NavBar
 import com.example.myfitplan.ui.composables.NavBarItem
 import com.example.myfitplan.ui.composables.TopBar
 import org.koin.androidx.compose.koinViewModel
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import androidx.compose.runtime.SideEffect
 
 @Composable
 fun HomeScreen(
@@ -46,7 +45,7 @@ fun HomeScreen(
 
     Scaffold(
         topBar = { TopBar(
-            onProfileClick = {  },
+            onProfileClick = { navController.navigate(MyFitPlanRoute.Profile) },
             onPieChartClick = {  }
         ) },
         bottomBar = {
@@ -66,6 +65,7 @@ fun HomeScreen(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = "Today",
                 style = MaterialTheme.typography.headlineMedium.copy(

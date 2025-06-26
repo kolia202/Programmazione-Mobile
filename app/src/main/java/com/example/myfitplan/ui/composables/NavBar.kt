@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.myfitplan.ui.MyFitPlanRoute
 
 enum class NavBarItem(val icon: @Composable () -> Unit) {
     Home({ Icon(Icons.Default.Home, contentDescription = "Home", modifier = Modifier.size(32.dp)) }),
@@ -48,7 +49,10 @@ fun NavBar(
                     onClick = {
                         onItemSelected(item)
                         if (index == 0) {
-                            navController.navigate("home") { launchSingleTop = true }
+                            navController.navigate(MyFitPlanRoute.Home)
+                        }
+                        if (index == 3) {
+                            navController.navigate(MyFitPlanRoute.Restaurant)
                         }
                     },
                     modifier = Modifier.weight(1f)

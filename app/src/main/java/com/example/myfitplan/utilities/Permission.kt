@@ -1,5 +1,6 @@
 package com.example.myfitplan.utilities
 
+import android.Manifest
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
