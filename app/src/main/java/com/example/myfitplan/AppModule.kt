@@ -13,7 +13,6 @@ import com.example.myfitplan.ui.screens.editProfile.EditProfileViewModel
 import com.example.myfitplan.ui.screens.home.HomeViewModel
 import com.example.myfitplan.ui.screens.login.LoginViewModel
 import com.example.myfitplan.ui.screens.profile.ProfileViewModel
-import com.example.myfitplan.ui.screens.restaurant.RestaurantViewModel
 import com.example.myfitplan.ui.screens.signUp.SignUpViewModel
 import com.example.myfitplan.ui.screens.theme.ThemeViewModel
 import com.example.myfitplan.utilities.StepSensorManager
@@ -49,6 +48,5 @@ val appModule = module {
     viewModel { HomeViewModel(get(), get(), get()) }
     viewModel { ProfileViewModel(get(), get()) }
     viewModel { EditProfileViewModel(get(), get()) }
-    viewModel { RestaurantViewModel() }
     single { androidContext().dataStore }
 }

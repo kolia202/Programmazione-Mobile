@@ -17,7 +17,6 @@ import com.example.myfitplan.ui.screens.theme.ThemeViewModel
 import com.example.myfitplan.ui.screens.login.LoginScreen
 import com.example.myfitplan.ui.screens.profile.ProfileScreen
 import com.example.myfitplan.ui.screens.profile.ProfileViewModel
-import com.example.myfitplan.ui.screens.restaurant.RestaurantScreen
 import com.example.myfitplan.ui.screens.signUp.SignUpScreen
 import com.example.myfitplan.utilities.LocationService
 import org.koin.androidx.compose.koinViewModel
@@ -29,7 +28,6 @@ sealed interface MyFitPlanRoute {
     @Serializable data object Home : MyFitPlanRoute
     @Serializable data object Profile : MyFitPlanRoute
     @Serializable data object EditProfile : MyFitPlanRoute
-    @Serializable data object Restaurant : MyFitPlanRoute
 }
 
 @Composable
@@ -53,9 +51,6 @@ fun MyFitPlanNavGraph(
         }
         composable<MyFitPlanRoute.EditProfile>{
             EditProfileScreen(navController)
-        }
-        composable<MyFitPlanRoute.Restaurant> {
-            RestaurantScreen(navController)
         }
         composable<MyFitPlanRoute.Profile> {
             val viewModel: ProfileViewModel = koinViewModel()
