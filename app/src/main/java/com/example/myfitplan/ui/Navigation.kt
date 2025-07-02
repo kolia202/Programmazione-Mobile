@@ -2,6 +2,7 @@ package com.example.myfitplan.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.internal.composableLambda
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -10,6 +11,8 @@ import androidx.navigation.NavHostController
 import kotlinx.serialization.Serializable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.myfitplan.ui.screens.badge.BadgeScreen
+import com.example.myfitplan.ui.screens.badge.BadgeViewModel
 import com.example.myfitplan.ui.screens.editProfile.EditProfileScreen
 import com.example.myfitplan.ui.screens.home.HomeScreen
 import com.example.myfitplan.ui.screens.theme.ThemeScreen
@@ -28,6 +31,7 @@ sealed interface MyFitPlanRoute {
     @Serializable data object Home : MyFitPlanRoute
     @Serializable data object Profile : MyFitPlanRoute
     @Serializable data object EditProfile : MyFitPlanRoute
+    @Serializable data object Badge: MyFitPlanRoute
 }
 
 @Composable
@@ -69,6 +73,11 @@ fun MyFitPlanNavGraph(
                 state = themeState,
                 onThemeSelected = viewModel::changeTheme
             )
+        }
+        composable<MyFitPlanRoute.Badge>{
+            val badgeViewModel: BadgeViewModel = koinViewModel()
+
+            BadgeScreen(badgeViewModel)
         }
     }
 }

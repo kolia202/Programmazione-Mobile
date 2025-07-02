@@ -2,6 +2,7 @@ package com.example.myfitplan.data.database
 
 import androidx.room.Embedded
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
 @Entity
@@ -113,6 +114,11 @@ data class ExerciseInsideDayWithExercise(
     @Embedded val exerciseInsideDay: ExerciseInsideDay,
     @Embedded val exercise: Exercise
 )
+//visualizzazione di badge legati all'utente
+data class BadgeWithUserData(
+    @Embedded val badgeUser: BadgeUser,
+    @Embedded val badge: Badge
+)
 
 @Entity(primaryKeys = ["email", "date"])
 data class StepCounter(
@@ -120,4 +126,35 @@ data class StepCounter(
     val date: String,
     val steps: Int,
     val goal: Int = 1000
+)
+//tabella di memorizzazione dei Badge
+@Entity(primaryKeys = ["id"])
+data class Badge(
+    val id : Int,
+    val title: String,
+    val description: String,
+    val icon: String
+)
+//tabella che lega badge e Email
+@Entity(
+    primaryKeys = ["email" , "badgeId"],
+    foreignKeys = [
+        ForeignKey(
+            entity = User::class,
+            parentColumns = ["email"],
+            childColumns = ["email"],
+            onDelete = ForeignKey.CASCADE
+        ),
+    ForeignKey(
+        entity = Badge::class,
+        parentColumns = ["id"],
+        childColumns = ["badgeId"],
+        onDelete = ForeignKey.CASCADE
+        )
+    ]
+)
+data class BadgeUser(
+    val email: String,
+    val badgeId: Int,
+    val dataAchieved: String
 )

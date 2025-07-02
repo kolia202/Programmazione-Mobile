@@ -96,3 +96,40 @@ interface StepCounterDAO {
     @Upsert
     suspend fun upsert(stepCounter: StepCounter)
 }
+
+@Dao
+interface BadgeDAO{
+    @Query("SELECT * FROM Badge")
+    fun getAllBadges(): Flow<List<Badge>>
+
+    @Upsert
+    suspend fun upsert(badge:Badge)
+
+    @Query("SELECT * FROM Badge WHERE id= :id ")
+    suspend fun deleteBadge(id: Int)
+}
+
+@Dao
+interface BadgeUserDAO{
+    //seleziona id dei badge ottenuti dall'utente
+    @Query("SELECT * FROM BadgeUser WHERE email = :email")
+    fun getUserBadge(email: String): Flow<List<BadgeUser>>
+
+    //selezione informazioni Badge
+    @Transaction
+    @Query("SELECT bu.email, bu.badgeId, bu.dataAchieved, b.id, b.title, b.description, b.icon " +
+            "FROM BadgeUser as bu INNER JOIN Badge AS b ON bu.badgeId = b.id " +
+            "WHERE bu.email = :email"
+    )
+    fun getUserBadgeWithInfo(email: String): Flow<List<BadgeWithUserData>>
+
+    //inserimento di un badge ottenuto
+    @Upsert
+    suspend fun upsert(badgeUser: BadgeUser)
+
+    //rimozione di un badge
+    @Query("DELETE FROM BadgeUser WHERE email = :email AND badgeId = :badgeId")
+    suspend fun deleteuserBadge(email: String, badgeId: Int)
+
+
+}
