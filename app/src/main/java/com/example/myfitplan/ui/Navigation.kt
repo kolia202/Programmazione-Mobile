@@ -2,7 +2,6 @@ package com.example.myfitplan.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.internal.composableLambda
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -20,6 +19,8 @@ import com.example.myfitplan.ui.screens.theme.ThemeViewModel
 import com.example.myfitplan.ui.screens.login.LoginScreen
 import com.example.myfitplan.ui.screens.profile.ProfileScreen
 import com.example.myfitplan.ui.screens.profile.ProfileViewModel
+import com.example.myfitplan.ui.screens.settings.SettingsScreen
+import com.example.myfitplan.ui.screens.settings.SettingsViewModel
 import com.example.myfitplan.ui.screens.signUp.SignUpScreen
 import com.example.myfitplan.utilities.LocationService
 import org.koin.androidx.compose.koinViewModel
@@ -32,6 +33,7 @@ sealed interface MyFitPlanRoute {
     @Serializable data object Profile : MyFitPlanRoute
     @Serializable data object EditProfile : MyFitPlanRoute
     @Serializable data object Badge: MyFitPlanRoute
+    @Serializable data object Settings : MyFitPlanRoute
 }
 
 @Composable
@@ -41,7 +43,7 @@ fun MyFitPlanNavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = MyFitPlanRoute.Login,
+        startDestination = MyFitPlanRoute.Profile,
         modifier = modifier
     ) {
         composable<MyFitPlanRoute.Login> {
@@ -73,6 +75,10 @@ fun MyFitPlanNavGraph(
                 state = themeState,
                 onThemeSelected = viewModel::changeTheme
             )
+        }
+        composable<MyFitPlanRoute.Settings> {
+            val vm: SettingsViewModel = koinViewModel()
+            SettingsScreen(viewModel = vm, onBack = { navController.popBackStack() })
         }
         composable<MyFitPlanRoute.Badge>{
             val badgeViewModel: BadgeViewModel = koinViewModel()
