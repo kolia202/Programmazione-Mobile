@@ -46,7 +46,7 @@ fun HomeScreen(
     Scaffold(
         topBar = { TopBar(
             onProfileClick = { navController.navigate(MyFitPlanRoute.Profile) },
-            onPieChartClick = {  }
+            onPieChartClick = { navController.navigate(MyFitPlanRoute.Badge) }
         ) },
         bottomBar = {
             NavBar(

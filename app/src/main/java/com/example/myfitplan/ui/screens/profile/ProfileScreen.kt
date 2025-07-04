@@ -84,7 +84,7 @@ fun ProfileScreen(
         topBar = {
             TopBarProfile(
                 onHomeClick = { navController.navigate(MyFitPlanRoute.Home) },
-                onSettingsClick = { navController.navigate(MyFitPlanRoute.Settings) }
+                //onSettingsClick = { navController.navigate(MyFitPlanRoute.Settings) }
             )
         }
     ) { paddingValues ->
