@@ -23,6 +23,8 @@ import com.example.myfitplan.ui.screens.theme.ThemeViewModel
 import com.example.myfitplan.ui.screens.login.LoginScreen
 import com.example.myfitplan.ui.screens.profile.ProfileScreen
 import com.example.myfitplan.ui.screens.profile.ProfileViewModel
+import com.example.myfitplan.ui.screens.settings.SettingsScreen
+import com.example.myfitplan.ui.screens.settings.SettingsViewModel
 import com.example.myfitplan.ui.screens.signUp.SignUpScreen
 import com.example.myfitplan.utilities.LocationService
 import org.koin.androidx.compose.koinViewModel
@@ -37,6 +39,7 @@ sealed interface MyFitPlanRoute {
     @Serializable data object Profile : MyFitPlanRoute
     @Serializable data object EditProfile : MyFitPlanRoute
     @Serializable data object Badge: MyFitPlanRoute
+    @Serializable data object Settings: MyFitPlanRoute
 }
 
 @Composable
@@ -80,6 +83,14 @@ fun MyFitPlanNavGraph(
             )
         }
 
+        composable<MyFitPlanRoute.Settings>{
+            val viewModel: SettingsViewModel = koinViewModel()
+            SettingsScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() }
+            )
+        }
+
         composable<MyFitPlanRoute.Badge> {
 
             val context = LocalContext.current
@@ -95,21 +106,3 @@ fun MyFitPlanNavGraph(
     }
 }
 
-
-/*composable<MyFitPlanRoute.Badge>{
-    val context = LocalContext.current
-    val datastoreRepository = remember{ DatastoreRepository(context.dataStore) }
-    val userEmail by datastoreRepository.getUserEmail().collectAsState(initial = "" )
-    //val userEmail = "email@esmepio.com"
-
-    if (userEmail.isNotBlank()){
-        val badgeViewModel: BadgeViewModel = getViewModel
-        { parametersOf(userEmail)}
-        BadgeScreen(badgeViewModel)
-    }
-
-    //val badgeViewModel: BadgeViewModel = getViewModel { parametersOf(userEmail) }
-
-
-    BadgeScreen(badgeViewModel)
-}*/
