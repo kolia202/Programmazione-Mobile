@@ -3,6 +3,7 @@ package com.example.myfitplan.data.database
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity
@@ -151,7 +152,8 @@ data class Badge(
         childColumns = ["badgeId"],
         onDelete = ForeignKey.CASCADE
         )
-    ]
+    ],
+    indices = [Index("badgeId")]
 )
 data class BadgeUser(
     val email: String,

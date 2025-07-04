@@ -9,6 +9,7 @@ import com.example.myfitplan.data.database.MyFitPlanDatabase
 import com.example.myfitplan.data.repositories.DatastoreRepository
 import com.example.myfitplan.data.repositories.MyFitPlanRepositories
 import com.example.myfitplan.data.repositories.ThemeRepository
+import com.example.myfitplan.ui.screens.badge.BadgeViewModel
 import com.example.myfitplan.ui.screens.editProfile.EditProfileViewModel
 import com.example.myfitplan.ui.screens.home.HomeViewModel
 import com.example.myfitplan.ui.screens.login.LoginViewModel
@@ -40,6 +41,12 @@ val appModule = module {
         get<MyFitPlanDatabase>().exerciseInsideDayDAO(),
         get<MyFitPlanDatabase>().stepCounterDAO()
     ) }
+    single { get<MyFitPlanDatabase>().badgeDAO() }
+    single { get<MyFitPlanDatabase>().badgeUserDAO()}
+    viewModel { (userEmail: String) ->
+        BadgeViewModel(get(), get(), userEmail)
+    }
+
     single { DatastoreRepository(get()) }
     single { StepSensorManager(get()) }
     viewModel { ThemeViewModel(get()) }

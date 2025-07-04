@@ -1,6 +1,7 @@
 package com.example.myfitplan.ui
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.internal.composableLambda
 import androidx.compose.runtime.remember
@@ -11,6 +12,8 @@ import androidx.navigation.NavHostController
 import kotlinx.serialization.Serializable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.myfitplan.data.repositories.DatastoreRepository
+import com.example.myfitplan.dataStore
 import com.example.myfitplan.ui.screens.badge.BadgeScreen
 import com.example.myfitplan.ui.screens.badge.BadgeViewModel
 import com.example.myfitplan.ui.screens.editProfile.EditProfileScreen
@@ -23,6 +26,8 @@ import com.example.myfitplan.ui.screens.profile.ProfileViewModel
 import com.example.myfitplan.ui.screens.signUp.SignUpScreen
 import com.example.myfitplan.utilities.LocationService
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
+import org.koin.androidx.compose.getViewModel
 
 sealed interface MyFitPlanRoute {
     @Serializable data object Login : MyFitPlanRoute
@@ -74,10 +79,37 @@ fun MyFitPlanNavGraph(
                 onThemeSelected = viewModel::changeTheme
             )
         }
-        composable<MyFitPlanRoute.Badge>{
-            val badgeViewModel: BadgeViewModel = koinViewModel()
 
-            BadgeScreen(badgeViewModel)
+        composable<MyFitPlanRoute.Badge> {
+
+            val context = LocalContext.current
+            val datastoreRepository = remember { DatastoreRepository(context.dataStore) }
+            val userEmail by datastoreRepository.getUserEmail().collectAsState(initial = "")
+
+
+            if (userEmail.isNotBlank()) {
+                val badgeViewModel: BadgeViewModel = koinViewModel() { parametersOf(userEmail) }
+                BadgeScreen(badgeViewModel)
+            }
         }
     }
 }
+
+
+/*composable<MyFitPlanRoute.Badge>{
+    val context = LocalContext.current
+    val datastoreRepository = remember{ DatastoreRepository(context.dataStore) }
+    val userEmail by datastoreRepository.getUserEmail().collectAsState(initial = "" )
+    //val userEmail = "email@esmepio.com"
+
+    if (userEmail.isNotBlank()){
+        val badgeViewModel: BadgeViewModel = getViewModel
+        { parametersOf(userEmail)}
+        BadgeScreen(badgeViewModel)
+    }
+
+    //val badgeViewModel: BadgeViewModel = getViewModel { parametersOf(userEmail) }
+
+
+    BadgeScreen(badgeViewModel)
+}*/

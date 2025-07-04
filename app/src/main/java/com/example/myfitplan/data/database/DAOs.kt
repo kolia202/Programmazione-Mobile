@@ -105,9 +105,13 @@ interface BadgeDAO{
     @Upsert
     suspend fun upsert(badge:Badge)
 
-    @Query("SELECT * FROM Badge WHERE id= :id ")
-    suspend fun deleteBadge(id: Int)
+    @Query("DELETE FROM Badge WHERE id= :id")
+    suspend fun deletebadge(id:Int)
+
+    @Query("SELECT * FROM Badge WHERE id= :id")
+    suspend fun getBadgeId(id: Int): Badge
 }
+
 
 @Dao
 interface BadgeUserDAO{

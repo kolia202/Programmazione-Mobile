@@ -70,4 +70,5 @@ class MyFitPlanRepositories(
 
     fun getSteps(email: String, date: String) = stepCounterDAO.getSteps(email, date)
     suspend fun upsertSteps(stepCounter: StepCounter) = stepCounterDAO.upsert(stepCounter)
+
 }

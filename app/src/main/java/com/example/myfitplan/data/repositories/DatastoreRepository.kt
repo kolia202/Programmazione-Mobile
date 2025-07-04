@@ -109,4 +109,10 @@ class DatastoreRepository(
 
     val stepGoal: Flow<Int> = dataStore.data.map { prefs -> prefs[STEP_GOAL_KEY]?.toIntOrNull() ?: 1000 }
     suspend fun setStepGoal(goal: Int) = dataStore.edit { it[STEP_GOAL_KEY] = goal.toString() }
+
+
+    fun getUserEmail(): Flow<String> {
+        return dataStore.data.map { preferences -> preferences[EMAIL_KEY] ?: "" }
+    }
+
 }
