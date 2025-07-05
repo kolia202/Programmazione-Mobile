@@ -51,6 +51,9 @@ fun NavBar(
                         if (index == 0) {
                             navController.navigate(MyFitPlanRoute.Home)
                         }
+                        if (index == 1) {
+                            navController.navigate(MyFitPlanRoute.FastingTimer)
+                        }
                     },
                     modifier = Modifier.weight(1f)
                 ) {

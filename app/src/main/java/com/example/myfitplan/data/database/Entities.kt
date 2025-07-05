@@ -160,3 +160,11 @@ data class BadgeUser(
     val badgeId: Int,
     val dataAchieved: String
 )
+
+@Entity(tableName = "fasting_sessions")
+data class FastingSession(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val startTime: Long,
+    val endTime: Long,
+    val durationMillis: Long
+)
