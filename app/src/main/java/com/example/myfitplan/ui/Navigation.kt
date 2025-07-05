@@ -103,7 +103,7 @@ fun MyFitPlanNavGraph(
 
             if (userEmail.isNotBlank()) {
                 val badgeViewModel: BadgeViewModel = koinViewModel() { parametersOf(userEmail) }
-                BadgeScreen(badgeViewModel)
+                BadgeScreen(badgeViewModel,navController)
             }
         }
         composable<MyFitPlanRoute.FastingTimer> {

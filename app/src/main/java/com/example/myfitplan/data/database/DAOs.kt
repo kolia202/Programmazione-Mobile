@@ -127,7 +127,9 @@ interface BadgeUserDAO{
 
     //selezione informazioni Badge
     @Transaction
-    @Query("SELECT bu.email, bu.badgeId, bu.dataAchieved, b.id, b.title, b.description, b.icon " +
+    @Query("SELECT bu.email AS badgeUser_email, bu.badgeId AS badgeUser_badgeId, " +
+            "bu.dataAchieved AS badgeUser_dataAchieved, b.id AS badge_id, b.title AS badge_title," +
+            " b.description AS badge_description, b.icon AS badge_icon " +
             "FROM BadgeUser as bu INNER JOIN Badge AS b ON bu.badgeId = b.id " +
             "WHERE bu.email = :email"
     )
