@@ -73,17 +73,23 @@ interface ExerciseDAO {
 interface ExerciseInsideDayDAO {
     @Query("SELECT * FROM ExerciseInsideDay WHERE date = :date AND emailEID = :email")
     fun getExercisesInsideDay(date: String, email: String): Flow<List<ExerciseInsideDay>>
+
     @Transaction
-    @Query("SELECT eid.emailEID, eid.exerciseName, eid.date, eid.duration,"
-            + " e.email, e.name, e.description, e.kcalBurned, e.isFavorite"
-            + " FROM ExerciseInsideDay AS eid"
-            + " INNER JOIN Exercise AS e"
-            + " ON eid.exerciseName = e.name AND eid.emailEID = e.email")
+    @Query(
+        "SELECT eid.emailEID, eid.exerciseName, eid.date, eid.duration, " +
+                "e.email, e.name, e.description, e.kcalBurned, e.isFavorite, e.category " + // <-- AGGIUNTO e.category
+                "FROM ExerciseInsideDay AS eid " +
+                "INNER JOIN Exercise AS e " +
+                "ON eid.exerciseName = e.name AND eid.emailEID = e.email"
+    )
     fun getExercisesInsideAllDays(): Flow<List<ExerciseInsideDayWithExercise>>
+
     @Upsert
     suspend fun upsert(exerciseInsideDay: ExerciseInsideDay)
+
     @Query("DELETE FROM ExerciseInsideDay WHERE exerciseName = :exerciseName AND date = :date AND emailEID = :email")
     suspend fun removeExerciseInsideDay(exerciseName: String, date: String, email: String)
+
     @Query("DELETE FROM ExerciseInsideDay WHERE exerciseName = :exerciseName AND emailEID = :email")
     suspend fun removeExerciseInsideAllDays(exerciseName: String, email: String)
 }

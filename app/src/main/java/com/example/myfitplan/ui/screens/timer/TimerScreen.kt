@@ -92,7 +92,7 @@ fun TimerScreen(
         topBar = {
             TopBar(
                 onProfileClick = { navController.navigate(MyFitPlanRoute.Profile) },
-                onPieChartClick = { /* Optional chart */ }
+                onPieChartClick = { navController.navigate(MyFitPlanRoute.Badge) }
             )
         },
         bottomBar = {
@@ -102,15 +102,15 @@ fun TimerScreen(
                     selectedTab = it
                     when (it) {
                         NavBarItem.Home -> navController.navigate(MyFitPlanRoute.Home)
-                        NavBarItem.Digiuno -> {}
-                        NavBarItem.Esercizi -> navController.navigate("esercizi")
+                        NavBarItem.Digiuno -> navController.navigate(MyFitPlanRoute.FastingTimer)
+                        NavBarItem.Esercizi -> navController.navigate(MyFitPlanRoute.Exercise)
                         NavBarItem.Ristoranti -> navController.navigate("ristoranti")
                     }
                 },
                 navController = navController
             )
         },
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) } // AGGIUNTO
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { padding ->
         Column(
             modifier = Modifier

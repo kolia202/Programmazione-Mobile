@@ -12,10 +12,13 @@ import kotlinx.serialization.Serializable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.myfitplan.data.repositories.DatastoreRepository
+import com.example.myfitplan.data.repositories.MyFitPlanRepositories
 import com.example.myfitplan.dataStore
 import com.example.myfitplan.ui.screens.badge.BadgeScreen
 import com.example.myfitplan.ui.screens.badge.BadgeViewModel
 import com.example.myfitplan.ui.screens.editProfile.EditProfileScreen
+import com.example.myfitplan.ui.screens.exercise.ExerciseDetailScreen
+import com.example.myfitplan.ui.screens.exercise.ExerciseScreen
 import com.example.myfitplan.ui.screens.home.HomeScreen
 import com.example.myfitplan.ui.screens.theme.ThemeScreen
 import com.example.myfitplan.ui.screens.theme.ThemeViewModel
@@ -29,6 +32,7 @@ import com.example.myfitplan.ui.screens.timer.TimerScreen
 import com.example.myfitplan.ui.screens.timer.TimerViewModel
 import com.example.myfitplan.utilities.LocationService
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.getKoin
 import org.koin.core.parameter.parametersOf
 
 sealed interface MyFitPlanRoute {
@@ -41,6 +45,8 @@ sealed interface MyFitPlanRoute {
     @Serializable data object Badge: MyFitPlanRoute
     @Serializable data object Settings : MyFitPlanRoute
     @Serializable data object FastingTimer : MyFitPlanRoute
+    @Serializable data object Exercise : MyFitPlanRoute
+    @Serializable data class ExerciseDetail(val name: String) : MyFitPlanRoute
 }
 
 @Composable
@@ -106,6 +112,23 @@ fun MyFitPlanNavGraph(
                 navController = navController,
                 viewModel = timerViewModel
             )
+        }
+        composable<MyFitPlanRoute.Exercise> {
+            val context = LocalContext.current
+            val repo = getKoin().get<MyFitPlanRepositories>()
+            val datastore = remember { DatastoreRepository(context.dataStore) }
+            val userEmail by datastore.getUserEmail().collectAsState(initial = "")
+            if (userEmail.isNotBlank()) {
+                ExerciseScreen(navController, userEmail)
+            }
+        }
+        composable<MyFitPlanRoute.ExerciseDetail> { backStackEntry ->
+            val exerciseName = backStackEntry.arguments?.getString("name") ?: ""
+            val context = LocalContext.current
+            val repo = getKoin().get<MyFitPlanRepositories>()
+            val datastore = remember { DatastoreRepository(context.dataStore) }
+            val userEmail by datastore.getUserEmail().collectAsState(initial = "")
+            ExerciseDetailScreen(exerciseName, userEmail, navController, repo)
         }
     }
 }

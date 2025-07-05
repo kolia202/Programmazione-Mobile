@@ -95,7 +95,8 @@ data class Exercise(
     val name: String,
     val description: String,
     val kcalBurned: Float,
-    val isFavorite: Boolean
+    val isFavorite: Boolean,
+    val category: String = "Altro"
 )
 
 @Entity(primaryKeys = ["emailEID", "exerciseName", "date"])

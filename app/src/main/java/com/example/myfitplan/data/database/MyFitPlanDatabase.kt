@@ -15,7 +15,7 @@ import androidx.room.RoomDatabase
         Badge::class,
         BadgeUser::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class MyFitPlanDatabase : RoomDatabase() {

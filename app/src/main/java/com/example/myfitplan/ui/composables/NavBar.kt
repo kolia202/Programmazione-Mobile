@@ -21,9 +21,10 @@ import com.example.myfitplan.ui.MyFitPlanRoute
 enum class NavBarItem(val icon: @Composable () -> Unit) {
     Home({ Icon(Icons.Default.Home, contentDescription = "Home", modifier = Modifier.size(32.dp)) }),
     Digiuno({ Icon(Icons.Default.Timer, contentDescription = "Digiuno", modifier = Modifier.size(32.dp)) }),
-    Esercizi({ Icon(Icons.Default.FitnessCenter, contentDescription = "Esercizi", modifier = Modifier.size(32.dp)) }),
+    Esercizi({ Icon(Icons.Default.FitnessCenter, contentDescription = "Exercise", modifier = Modifier.size(32.dp)) }),
     Ristoranti({ Icon(Icons.Default.Fastfood, contentDescription = "Ristoranti", modifier = Modifier.size(32.dp)) })
 }
+
 
 @Composable
 fun NavBar(
@@ -53,6 +54,9 @@ fun NavBar(
                         }
                         if (index == 1) {
                             navController.navigate(MyFitPlanRoute.FastingTimer)
+                        }
+                        if (index == 2) {
+                            navController.navigate(MyFitPlanRoute.Exercise)
                         }
                     },
                     modifier = Modifier.weight(1f)
