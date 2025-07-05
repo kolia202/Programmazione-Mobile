@@ -1,6 +1,7 @@
 package com.example.myfitplan.ui
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -10,6 +11,8 @@ import androidx.navigation.NavHostController
 import kotlinx.serialization.Serializable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.myfitplan.data.repositories.DatastoreRepository
+import com.example.myfitplan.dataStore
 import com.example.myfitplan.ui.screens.badge.BadgeScreen
 import com.example.myfitplan.ui.screens.badge.BadgeViewModel
 import com.example.myfitplan.ui.screens.editProfile.EditProfileScreen
@@ -26,6 +29,7 @@ import com.example.myfitplan.ui.screens.timer.TimerScreen
 import com.example.myfitplan.ui.screens.timer.TimerViewModel
 import com.example.myfitplan.utilities.LocationService
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 sealed interface MyFitPlanRoute {
     @Serializable data object Login : MyFitPlanRoute
@@ -58,7 +62,7 @@ fun MyFitPlanNavGraph(
         composable<MyFitPlanRoute.Home> {
             HomeScreen(navController)
         }
-        composable<MyFitPlanRoute.EditProfile>{
+        composable<MyFitPlanRoute.EditProfile> {
             EditProfileScreen(navController)
         }
         composable<MyFitPlanRoute.Profile> {
@@ -80,13 +84,21 @@ fun MyFitPlanNavGraph(
             )
         }
         composable<MyFitPlanRoute.Settings> {
-            val vm: SettingsViewModel = koinViewModel()
-            SettingsScreen(viewModel = vm, onBack = { navController.popBackStack() })
+            val viewModel: SettingsViewModel = koinViewModel()
+            SettingsScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() }
+            )
         }
-        composable<MyFitPlanRoute.Badge>{
-            val badgeViewModel: BadgeViewModel = koinViewModel()
+        composable<MyFitPlanRoute.Badge> {
+            val context = LocalContext.current
+            val datastoreRepository = remember { DatastoreRepository(context.dataStore) }
+            val userEmail by datastoreRepository.getUserEmail().collectAsState(initial = "")
 
-            BadgeScreen(badgeViewModel)
+            if (userEmail.isNotBlank()) {
+                val badgeViewModel: BadgeViewModel = koinViewModel() { parametersOf(userEmail) }
+                BadgeScreen(badgeViewModel)
+            }
         }
         composable<MyFitPlanRoute.FastingTimer> {
             val timerViewModel: TimerViewModel = koinViewModel()

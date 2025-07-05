@@ -26,7 +26,7 @@ class MyFitPlanRepositories(
     private val exerciseDAO: ExerciseDAO,
     private val exerciseInsideDayDAO: ExerciseInsideDayDAO,
     private val stepCounterDAO: StepCounterDAO,
-    val fastingSessionDAO: FastingSessionDAO,
+    val fastingSessionDAO: FastingSessionDAO // <-- aggiungi il DAO del digiuno!
 ) {
 
     /* Users */

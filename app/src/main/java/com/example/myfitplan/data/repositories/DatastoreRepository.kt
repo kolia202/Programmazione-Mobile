@@ -39,7 +39,7 @@ class DatastoreRepository(
         private val B6_KEY = stringPreferencesKey("b6")
         private val SELECTED_DATE_MILLIS_KEY = stringPreferencesKey("selectedDateMillis")
         private val STEP_GOAL_KEY = stringPreferencesKey("stepGoal")
-        private val SHOW_TIMER_POPUP_KEY = stringPreferencesKey("show_timer_popup") // AGGIUNTO
+        private val SHOW_TIMER_POPUP_KEY = stringPreferencesKey("show_timer_popup") // Tua aggiunta!
     }
 
     val user: Flow<User?> = dataStore.data.map { prefs ->
@@ -118,6 +118,10 @@ class DatastoreRepository(
 
     val stepGoal: Flow<Int> = dataStore.data.map { prefs -> prefs[STEP_GOAL_KEY]?.toIntOrNull() ?: 1000 }
     suspend fun setStepGoal(goal: Int) = dataStore.edit { it[STEP_GOAL_KEY] = goal.toString() }
+
+    fun getUserEmail(): Flow<String> {
+        return dataStore.data.map { preferences -> preferences[EMAIL_KEY] ?: "" }
+    }
 
     suspend fun saveLong(key: String, value: Long) =
         dataStore.edit { it[androidx.datastore.preferences.core.longPreferencesKey(key)] = value }
