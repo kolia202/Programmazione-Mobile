@@ -117,8 +117,8 @@ data class ExerciseInsideDayWithExercise(
 )
 //visualizzazione di badge legati all'utente
 data class BadgeWithUserData(
-    @Embedded val badgeUser: BadgeUser,
-    @Embedded val badge: Badge
+    @Embedded(prefix = "badgeUser_") val badgeUser: BadgeUser,
+    @Embedded(prefix = "badge_") val badge: Badge
 )
 
 @Entity(primaryKeys = ["email", "date"])
