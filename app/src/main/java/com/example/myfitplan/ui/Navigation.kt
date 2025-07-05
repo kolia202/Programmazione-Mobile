@@ -22,6 +22,8 @@ import com.example.myfitplan.ui.screens.profile.ProfileViewModel
 import com.example.myfitplan.ui.screens.settings.SettingsScreen
 import com.example.myfitplan.ui.screens.settings.SettingsViewModel
 import com.example.myfitplan.ui.screens.signUp.SignUpScreen
+import com.example.myfitplan.ui.screens.timer.TimerScreen
+import com.example.myfitplan.ui.screens.timer.TimerViewModel
 import com.example.myfitplan.utilities.LocationService
 import org.koin.androidx.compose.koinViewModel
 
@@ -34,6 +36,7 @@ sealed interface MyFitPlanRoute {
     @Serializable data object EditProfile : MyFitPlanRoute
     @Serializable data object Badge: MyFitPlanRoute
     @Serializable data object Settings : MyFitPlanRoute
+    @Serializable data object FastingTimer : MyFitPlanRoute
 }
 
 @Composable
@@ -43,7 +46,7 @@ fun MyFitPlanNavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = MyFitPlanRoute.Login,
+        startDestination = MyFitPlanRoute.Home,
         modifier = modifier
     ) {
         composable<MyFitPlanRoute.Login> {
@@ -84,6 +87,13 @@ fun MyFitPlanNavGraph(
             val badgeViewModel: BadgeViewModel = koinViewModel()
 
             BadgeScreen(badgeViewModel)
+        }
+        composable<MyFitPlanRoute.FastingTimer> {
+            val timerViewModel: TimerViewModel = koinViewModel()
+            TimerScreen(
+                navController = navController,
+                viewModel = timerViewModel
+            )
         }
     }
 }

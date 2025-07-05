@@ -133,3 +133,18 @@ interface BadgeUserDAO{
 
 
 }
+
+@Dao
+interface FastingSessionDAO {
+    @Insert
+    suspend fun insertSession(session: FastingSession)
+
+    @Query("SELECT * FROM fasting_sessions ORDER BY startTime DESC")
+    suspend fun getAllSessions(): List<FastingSession>
+
+    @Query("DELETE FROM fasting_sessions")
+    suspend fun deleteAllSessions()
+
+    @Query("DELETE FROM fasting_sessions WHERE id = (SELECT id FROM fasting_sessions ORDER BY startTime ASC LIMIT 1)")
+    suspend fun deleteOldestSession()
+}

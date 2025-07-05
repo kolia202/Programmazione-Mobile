@@ -10,9 +10,10 @@ import androidx.room.RoomDatabase
         FoodInsideMeal::class,
         Exercise::class,
         ExerciseInsideDay::class,
-        StepCounter::class
+        StepCounter::class,
+        FastingSession::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class MyFitPlanDatabase : RoomDatabase() {
@@ -22,4 +23,5 @@ abstract class MyFitPlanDatabase : RoomDatabase() {
     abstract fun exerciseDAO(): ExerciseDAO
     abstract fun exerciseInsideDayDAO(): ExerciseInsideDayDAO
     abstract fun stepCounterDAO(): StepCounterDAO
+    abstract fun fastingSessionDAO(): FastingSessionDAO
 }

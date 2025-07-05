@@ -20,7 +20,8 @@ data class SettingsUiState(
     val confirmPassword: String = "",
     val passwordChangeSuccess: Boolean = false,
     val passwordChangeError: String? = null,
-    val loading: Boolean = false
+    val loading: Boolean = false,
+    val showTimerPopup: Boolean = true // AGGIUNGI QUESTO
 )
 
 class SettingsViewModel(
@@ -44,6 +45,11 @@ class SettingsViewModel(
             datastore.user.collect { user ->
                 loggedUser = user
                 _uiState.update { it.copy(email = user?.email ?: "") }
+            }
+        }
+        viewModelScope.launch {
+            datastore.showTimerPopup.collect { showPopup ->
+                _uiState.update { it.copy(showTimerPopup = showPopup) }
             }
         }
     }
@@ -114,5 +120,10 @@ class SettingsViewModel(
 
     fun clearPasswordChangeStatus() {
         _uiState.update { it.copy(passwordChangeSuccess = false, passwordChangeError = null) }
+    }
+
+    fun onShowTimerPopupChanged(enabled: Boolean) {
+        _uiState.update { it.copy(showTimerPopup = enabled) }
+        viewModelScope.launch { datastore.setShowTimerPopup(enabled) }
     }
 }

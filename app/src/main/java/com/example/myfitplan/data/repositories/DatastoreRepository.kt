@@ -39,6 +39,7 @@ class DatastoreRepository(
         private val B6_KEY = stringPreferencesKey("b6")
         private val SELECTED_DATE_MILLIS_KEY = stringPreferencesKey("selectedDateMillis")
         private val STEP_GOAL_KEY = stringPreferencesKey("stepGoal")
+        private val SHOW_TIMER_POPUP_KEY = stringPreferencesKey("show_timer_popup") // AGGIUNTO
     }
 
     val user: Flow<User?> = dataStore.data.map { prefs ->
@@ -70,6 +71,14 @@ class DatastoreRepository(
                 null
             }
         }
+    }
+
+    val showTimerPopup: Flow<Boolean> = dataStore.data.map { prefs ->
+        prefs[SHOW_TIMER_POPUP_KEY]?.toBoolean() ?: true
+    }
+
+    suspend fun setShowTimerPopup(enabled: Boolean) = dataStore.edit { prefs ->
+        prefs[SHOW_TIMER_POPUP_KEY] = enabled.toString()
     }
 
     suspend fun saveUser(user: User) = dataStore.edit { prefs ->
@@ -109,4 +118,19 @@ class DatastoreRepository(
 
     val stepGoal: Flow<Int> = dataStore.data.map { prefs -> prefs[STEP_GOAL_KEY]?.toIntOrNull() ?: 1000 }
     suspend fun setStepGoal(goal: Int) = dataStore.edit { it[STEP_GOAL_KEY] = goal.toString() }
+
+    suspend fun saveLong(key: String, value: Long) =
+        dataStore.edit { it[androidx.datastore.preferences.core.longPreferencesKey(key)] = value }
+
+    suspend fun getLong(key: String): Long? =
+        dataStore.data.first()[androidx.datastore.preferences.core.longPreferencesKey(key)]
+
+    suspend fun saveBoolean(key: String, value: Boolean) =
+        dataStore.edit { it[androidx.datastore.preferences.core.booleanPreferencesKey(key)] = value }
+
+    suspend fun getBoolean(key: String): Boolean? =
+        dataStore.data.first()[androidx.datastore.preferences.core.booleanPreferencesKey(key)]
+
+    suspend fun remove(key: String) =
+        dataStore.edit { it.remove(androidx.datastore.preferences.core.longPreferencesKey(key)) }
 }

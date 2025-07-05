@@ -5,6 +5,8 @@ import com.example.myfitplan.data.database.ExerciseDAO
 import com.example.myfitplan.data.database.ExerciseInsideDay
 import com.example.myfitplan.data.database.ExerciseInsideDayDAO
 import com.example.myfitplan.data.database.ExerciseInsideDayWithExercise
+import com.example.myfitplan.data.database.FastingSession
+import com.example.myfitplan.data.database.FastingSessionDAO
 import com.example.myfitplan.data.database.Food
 import com.example.myfitplan.data.database.FoodDAO
 import com.example.myfitplan.data.database.FoodInsideMeal
@@ -23,7 +25,8 @@ class MyFitPlanRepositories(
     private val foodInsideMealDAO: FoodInsideMealDAO,
     private val exerciseDAO: ExerciseDAO,
     private val exerciseInsideDayDAO: ExerciseInsideDayDAO,
-    private val stepCounterDAO: StepCounterDAO
+    private val stepCounterDAO: StepCounterDAO,
+    val fastingSessionDAO: FastingSessionDAO,
 ) {
 
     /* Users */
@@ -70,4 +73,15 @@ class MyFitPlanRepositories(
 
     fun getSteps(email: String, date: String) = stepCounterDAO.getSteps(email, date)
     suspend fun upsertSteps(stepCounter: StepCounter) = stepCounterDAO.upsert(stepCounter)
+
+    suspend fun saveFastingSession(session: FastingSession) = fastingSessionDAO.insertSession(session)
+    suspend fun getAllFastingSessions() = fastingSessionDAO.getAllSessions()
+    suspend fun clearFastingSessions() = fastingSessionDAO.deleteAllSessions()
+    suspend fun saveFastingSessionFifo(session: FastingSession) {
+        val all = fastingSessionDAO.getAllSessions()
+        if (all.size >= 5) {
+            fastingSessionDAO.deleteOldestSession()
+        }
+        fastingSessionDAO.insertSession(session)
+    }
 }
