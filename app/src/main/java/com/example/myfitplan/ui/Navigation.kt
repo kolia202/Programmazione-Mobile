@@ -21,6 +21,7 @@ import com.example.myfitplan.ui.screens.editProfile.EditProfileScreen
 import com.example.myfitplan.ui.screens.exercise.ExerciseDetailScreen
 import com.example.myfitplan.ui.screens.exercise.ExerciseScreen
 import com.example.myfitplan.ui.screens.food.FoodScreen
+import com.example.myfitplan.ui.screens.food.ManageMealScreen
 import com.example.myfitplan.ui.screens.home.HomeScreen
 import com.example.myfitplan.ui.screens.theme.ThemeScreen
 import com.example.myfitplan.ui.screens.theme.ThemeViewModel
@@ -36,6 +37,8 @@ import com.example.myfitplan.utilities.LocationService
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.getKoin
 import org.koin.core.parameter.parametersOf
+import com.example.myfitplan.data.database.MealType
+import com.example.myfitplan.utilities.DateUtils.getTodayDate
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
@@ -147,6 +150,20 @@ fun MyFitPlanNavGraph(
                 ExerciseDetailScreen(
                     navController = navController,
                     exercise=exercise
+                )
+            }
+        }
+        composable("manage_meal/{mealType}") { backStackEntry ->
+            val mealType = MealType.valueOf(backStackEntry.arguments?.getString("mealType") ?: "BREAKFAST")
+            val context = LocalContext.current
+            val datastore = remember { DatastoreRepository(context.dataStore) }
+            val userEmail by datastore.getUserEmail().collectAsState(initial = "")
+            if (userEmail.isNotBlank()) {
+                ManageMealScreen(
+                    mealType = mealType,
+                    date = getTodayDate(),
+                    userEmail = userEmail,
+                    navController = navController
                 )
             }
         }

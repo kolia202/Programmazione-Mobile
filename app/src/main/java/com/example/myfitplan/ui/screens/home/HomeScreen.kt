@@ -147,7 +147,7 @@ fun HomeScreen(
                     mealType = mealType,
                     foods = foods,
                     onAddFoodClick = {
-                        // da implementare
+                        navController.navigate("manage_meal/${mealType.name}")
                     }
                 )
             }

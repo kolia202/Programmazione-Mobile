@@ -19,4 +19,10 @@ object DateUtils {
             if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
         }
     }
+
+    fun getTodayDate(): String {
+        return com.example.myfitplan.utilities.DateUtils.formattedDate(
+            com.example.myfitplan.utilities.DateUtils.getToday()
+        )
+    }
 }

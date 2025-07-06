@@ -33,7 +33,7 @@ data class HomeUiState(
 )
 
 class HomeViewModel(
-    private val repositories: MyFitPlanRepositories,
+    val repositories: MyFitPlanRepositories,
     private val datastoreRepository: DatastoreRepository,
     private val stepSensorManager: StepSensorManager
 ) : ViewModel() {
