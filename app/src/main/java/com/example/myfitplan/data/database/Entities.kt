@@ -5,6 +5,9 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import kotlinx.parcelize.Parcelize
+import android.os.Parcelable
+
 
 @Entity
 data class User(
@@ -89,6 +92,7 @@ enum class MealType(val string: String) {
     SNACK("Snack")
 }
 
+@Parcelize
 @Entity(primaryKeys = ["email", "name"])
 data class Exercise(
     val email: String,
@@ -97,7 +101,8 @@ data class Exercise(
     val kcalBurned: Float,
     val isFavorite: Boolean,
     val category: String = "Other"
-)
+) : Parcelable
+
 
 @Entity(primaryKeys = ["emailEID", "exerciseName", "date"])
 data class ExerciseInsideDay(
