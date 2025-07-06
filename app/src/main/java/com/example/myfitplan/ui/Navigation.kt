@@ -11,12 +11,14 @@ import androidx.navigation.NavHostController
 import kotlinx.serialization.Serializable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.myfitplan.data.database.Exercise
 import com.example.myfitplan.data.repositories.DatastoreRepository
 import com.example.myfitplan.data.repositories.MyFitPlanRepositories
 import com.example.myfitplan.dataStore
 import com.example.myfitplan.ui.screens.badge.BadgeScreen
 import com.example.myfitplan.ui.screens.badge.BadgeViewModel
 import com.example.myfitplan.ui.screens.editProfile.EditProfileScreen
+import com.example.myfitplan.ui.screens.exercise.ExerciseDetailScreen
 import com.example.myfitplan.ui.screens.exercise.ExerciseScreen
 import com.example.myfitplan.ui.screens.food.FoodScreen
 import com.example.myfitplan.ui.screens.home.HomeScreen
@@ -132,6 +134,19 @@ fun MyFitPlanNavGraph(
                 FoodScreen(
                     userEmail = userEmail,
                     navController = navController
+                )
+            }
+        }
+        composable("exercise_detail"){
+            val exercise = navController
+                .previousBackStackEntry
+                ?.savedStateHandle
+                ?.get<Exercise>("exercise_detail")
+
+            if (exercise != null){
+                ExerciseDetailScreen(
+                    navController = navController,
+                    exercise=exercise
                 )
             }
         }

@@ -1,6 +1,7 @@
 package com.example.myfitplan.ui.screens.exercise
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -130,7 +131,11 @@ fun ExerciseScreen(
             )
             ExerciseList(
                 exercises = state.filteredExercises,
-                onToggleFavorite = viewModel::toggleFavorite
+                onToggleFavorite = viewModel::toggleFavorite,
+                onExerciseClick = {exercise ->
+                    navController.currentBackStackEntry?.savedStateHandle?.set("exercise_detail",exercise)
+                    navController.navigate("exercise_detail")
+                }
             )
 
             Spacer(Modifier.height(22.dp))
@@ -240,6 +245,7 @@ fun FavoritesList(
 fun ExerciseList(
     exercises: List<Exercise>,
     onToggleFavorite: (Exercise) -> Unit,
+    onExerciseClick: (Exercise) -> Unit
 ) {
     val colors = MaterialTheme.colorScheme
 
@@ -265,7 +271,8 @@ fun ExerciseList(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(IntrinsicSize.Min),
+                    .height(IntrinsicSize.Min)
+                    .clickable { onExerciseClick(ex) },
                 shape = RoundedCornerShape(16.dp),
                 elevation = CardDefaults.cardElevation(3.dp),
                 colors = CardDefaults.cardColors(
