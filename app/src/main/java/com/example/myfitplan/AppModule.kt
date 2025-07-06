@@ -12,6 +12,7 @@ import com.example.myfitplan.data.repositories.ThemeRepository
 import com.example.myfitplan.ui.screens.badge.BadgeViewModel
 import com.example.myfitplan.ui.screens.editProfile.EditProfileViewModel
 import com.example.myfitplan.ui.screens.exercise.ExerciseViewModel
+import com.example.myfitplan.ui.screens.food.FoodViewModel
 import com.example.myfitplan.ui.screens.home.HomeViewModel
 import com.example.myfitplan.ui.screens.login.LoginViewModel
 import com.example.myfitplan.ui.screens.profile.ProfileViewModel
@@ -62,5 +63,6 @@ val appModule = module {
     viewModel { EditProfileViewModel(get(), get()) }
     viewModel { SettingsViewModel(get(), get(), get()) }
     viewModel { (userEmail: String) -> ExerciseViewModel(get(), userEmail) }
+    viewModel { FoodViewModel(get()) }
     single { androidContext().dataStore }
 }

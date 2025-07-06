@@ -104,7 +104,7 @@ fun TimerScreen(
                         NavBarItem.Home -> navController.navigate(MyFitPlanRoute.Home)
                         NavBarItem.Digiuno -> navController.navigate(MyFitPlanRoute.FastingTimer)
                         NavBarItem.Esercizi -> navController.navigate(MyFitPlanRoute.Exercise)
-                        NavBarItem.Ristoranti -> navController.navigate("ristoranti")
+                        NavBarItem.Ristoranti -> navController.navigate(MyFitPlanRoute.Food)
                     }
                 },
                 navController = navController

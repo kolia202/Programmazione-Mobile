@@ -18,6 +18,7 @@ import com.example.myfitplan.ui.screens.badge.BadgeScreen
 import com.example.myfitplan.ui.screens.badge.BadgeViewModel
 import com.example.myfitplan.ui.screens.editProfile.EditProfileScreen
 import com.example.myfitplan.ui.screens.exercise.ExerciseScreen
+import com.example.myfitplan.ui.screens.food.FoodScreen
 import com.example.myfitplan.ui.screens.home.HomeScreen
 import com.example.myfitplan.ui.screens.theme.ThemeScreen
 import com.example.myfitplan.ui.screens.theme.ThemeViewModel
@@ -47,6 +48,7 @@ sealed interface MyFitPlanRoute {
     @Serializable data object Settings : MyFitPlanRoute
     @Serializable data object FastingTimer : MyFitPlanRoute
     @Serializable data object Exercise : MyFitPlanRoute
+    @Serializable data object Food : MyFitPlanRoute
 }
 
 @Composable
@@ -120,6 +122,17 @@ fun MyFitPlanNavGraph(
             val userEmail by datastore.getUserEmail().collectAsState(initial = "")
             if (userEmail.isNotBlank()) {
                 ExerciseScreen(navController, userEmail)
+            }
+        }
+        composable<MyFitPlanRoute.Food> {
+            val context = LocalContext.current
+            val datastore = remember { DatastoreRepository(context.dataStore) }
+            val userEmail by datastore.getUserEmail().collectAsState(initial = "")
+            if (userEmail.isNotBlank()) {
+                FoodScreen(
+                    userEmail = userEmail,
+                    navController = navController
+                )
             }
         }
     }

@@ -58,6 +58,9 @@ fun NavBar(
                         if (index == 2) {
                             navController.navigate(MyFitPlanRoute.Exercise)
                         }
+                        if (index == 3) {
+                            navController.navigate(MyFitPlanRoute.Food)
+                        }
                     },
                     modifier = Modifier.weight(1f)
                 ) {

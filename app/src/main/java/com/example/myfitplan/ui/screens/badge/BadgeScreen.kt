@@ -19,8 +19,6 @@ import com.example.myfitplan.ui.MyFitPlanRoute
 import com.example.myfitplan.ui.composables.NavBar
 import com.example.myfitplan.ui.composables.NavBarItem
 import com.example.myfitplan.ui.composables.TopBar
-import com.example.myfitplan.data.database.Badge
-import com.example.myfitplan.ui.composables.TopBarBadge
 
 @Composable
 fun BadgeScreen(badgeViewModel: BadgeViewModel, navController: NavController) {
@@ -32,9 +30,9 @@ fun BadgeScreen(badgeViewModel: BadgeViewModel, navController: NavController) {
 
     Scaffold(
         topBar = {
-            TopBarBadge(
-                onHomeClick = { navController.navigate(MyFitPlanRoute.Home) },
-                onSettingsClick = { navController.navigate(MyFitPlanRoute.Profile) }
+            TopBar(
+                onProfileClick = { navController.navigate(MyFitPlanRoute.Profile) },
+                onPieChartClick = { navController.navigate(MyFitPlanRoute.Badge) }
             )
         },
         bottomBar = {

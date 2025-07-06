@@ -16,6 +16,7 @@ ktorSerializationKotlinxJson = "2.3.8"
 lifecycleRuntimeKtx = "2.9.0"
 activityCompose = "1.10.1"
 composeBom = "2024.04.01"
+material3 = "1.3.2"
 materialIconsExtendedAndroid = "1.7.8"
 navigationCompose = "2.9.0"
 ksp = "2.0.0-1.0.24"
@@ -25,6 +26,7 @@ playServicesLocation = "21.3.0"
 androidbrowserhelper = "2.6.2"
 foundationAndroid = "1.7.2"
 uiText = "1.8.3"
+roomRuntimeAndroid = "2.7.2"
 
 [libraries]
 accompanist-systemuicontroller = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanistSystemuicontroller" }
@@ -58,9 +60,14 @@ androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref =
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 androidx-foundation-layout-android = { group = "androidx.compose.foundation", name = "foundation-layout-android", version.ref = "foundationLayoutAndroid" }
+material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 androidbrowserhelper = { group = "com.google.androidbrowserhelper", name = "androidbrowserhelper", version.ref = "androidbrowserhelper" }
 androidx-foundation-android = { group = "androidx.compose.foundation", name = "foundation-android", version.ref = "foundationAndroid" }
+androidx-room-runtime-android = { group = "androidx.room", name = "room-runtime-android", version.ref = "roomRuntimeAndroid" }
+ui = { module = "androidx.compose.ui:ui", version.ref = "uiText" }
+ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "uiText" }
+ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "uiText" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -72,6 +72,8 @@ dependencies {
     implementation(libs.androidx.foundation.android)
     implementation(libs.androidx.foundation.android)
     implementation(libs.androidx.foundation.android)
+    implementation(libs.androidx.room.runtime.android)
+    implementation(libs.androidx.foundation.android)
     annotationProcessor(libs.androidx.room.compiler)
     implementation(libs.accompanist.systemuicontroller)
     implementation(libs.coil.compose)
@@ -84,4 +86,9 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.androidx.ui.text)
+    implementation(libs.ui)
+    implementation(libs.material3)
+    implementation(libs.ui.tooling.preview)
+    debugImplementation(libs.ui.tooling)
+
 }
