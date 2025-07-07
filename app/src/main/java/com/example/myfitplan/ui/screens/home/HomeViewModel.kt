@@ -32,6 +32,12 @@ data class HomeUiState(
     val stepKm: Float = 0f
 )
 
+data class DailySummary(
+    val formattedDate: String,
+    val summary: MacroSummary,
+    val meals: Map<MealType, List<FoodInsideMealWithFood>>
+)
+
 class HomeViewModel(
     val repositories: MyFitPlanRepositories,
     private val datastoreRepository: DatastoreRepository,
@@ -171,4 +177,36 @@ class HomeViewModel(
     }
 
     fun getSelectedDate(): String = DateUtils.formattedDate(DateUtils.getToday())
+
+    private val _summaryHistory = MutableStateFlow<List<DailySummary>>(emptyList())
+    val summaryHistory: StateFlow<List<DailySummary>> = _summaryHistory.asStateFlow()
+
+    fun loadSummaryHistory() {
+        viewModelScope.launch {
+            val user = datastoreRepository.user.first() ?: return@launch
+            val startDateMillis = datastoreRepository.getOrSetStartDateMillis(DateUtils.getToday().time)
+            val today = DateUtils.getToday()
+            val calendar = Calendar.getInstance()
+            calendar.timeInMillis = startDateMillis
+
+            val endDate = Calendar.getInstance().apply { time = today }
+            endDate.add(Calendar.DATE, -1)
+
+            val summaries = mutableListOf<DailySummary>()
+            while (!calendar.after(endDate)) {
+                val date = calendar.time
+                val formatted = DateUtils.formattedDate(date)
+
+                val meals = mutableMapOf<MealType, List<FoodInsideMealWithFood>>()
+                for (mealType in MealType.entries) {
+                    val foods = repositories.getFoodsInsideMeal(formatted, mealType, user.email).first()
+                    meals[mealType] = foods
+                }
+                val summary = computeMacroSummary(meals, user)
+                summaries.add(DailySummary(formatted, summary, meals))
+                calendar.add(Calendar.DATE, 1)
+            }
+            _summaryHistory.value = summaries
+        }
+    }
 }

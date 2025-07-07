@@ -1,6 +1,7 @@
 package com.example.myfitplan.ui.screens.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -107,6 +108,8 @@ fun HomeScreen(
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     color = colors.primary,
                     fontSize = 20.sp,
+                    modifier = Modifier
+                        .clickable { navController.navigate(MyFitPlanRoute.Summary) }
                 )
             }
 
