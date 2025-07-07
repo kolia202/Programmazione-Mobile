@@ -1,8 +1,13 @@
 package com.example.myfitplan.ui.screens.timer
 
+import android.Manifest
+import android.content.Intent
 import android.os.Build
+import android.provider.CalendarContract
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.progressSemantics
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,59 +27,43 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.myfitplan.data.database.Exercise
+import com.example.myfitplan.data.database.ExerciseInsideDay
 import com.example.myfitplan.data.database.FastingSession
+import com.example.myfitplan.data.repositories.MyFitPlanRepositories
 import com.example.myfitplan.ui.MyFitPlanRoute
 import com.example.myfitplan.ui.composables.NavBar
 import com.example.myfitplan.ui.composables.NavBarItem
 import com.example.myfitplan.ui.composables.TopBar
 import com.example.myfitplan.utilities.rememberPermission
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.max
 import kotlin.math.min
-import android.Manifest
-import com.example.myfitplan.data.repositories.DatastoreRepository
-import com.example.myfitplan.dataStore
 
 @Composable
 fun TimerScreen(
     navController: NavController,
     viewModel: TimerViewModel,
+    repo: MyFitPlanRepositories,
+    userEmail: String
 ) {
     val state by viewModel.uiState.collectAsState()
     val colors = MaterialTheme.colorScheme
     val context = LocalContext.current
-    val dataStore = remember { androidx.datastore.preferences.preferencesDataStore(name = "settings") }
-    val datastoreRepository = remember { DatastoreRepository(context.dataStore) }
-    val showTimerPopup by datastoreRepository.showTimerPopup.collectAsState(initial = true)
-
     val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
-    LaunchedEffect(state.showDialog, showTimerPopup) {
-        if (state.showDialog && showTimerPopup) {
-            snackbarHostState.showSnackbar(
-                message = "Congratulations, you have finished your workout timer.",
-                actionLabel = "OK",
-                duration = SnackbarDuration.Short
-            )
-            viewModel.dismissDialog()
-        }
-    }
-
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        val notificationPermission = rememberPermission(
-            Manifest.permission.POST_NOTIFICATIONS
-        )
-        LaunchedEffect(Unit) {
-            notificationPermission.launchPermissionRequest()
-        }
-    }
+    val allExercises by repo.exercises.collectAsState(initial = emptyList())
+    var selectedExercises by remember { mutableStateOf<List<Exercise>>(emptyList()) }
 
     var selectedTab by remember { mutableStateOf(NavBarItem.Digiuno) }
     var selectedHours by remember { mutableStateOf(0) }
     var selectedMinutes by remember { mutableStateOf(0) }
     var selectedSeconds by remember { mutableStateOf(0) }
     val canChangeDuration = !state.isRunning && state.elapsedMillis == 0L
+    val totalDurationZero = (selectedHours == 0 && selectedMinutes == 0 && selectedSeconds == 0)
 
     LaunchedEffect(state.durationMillis, state.elapsedMillis, state.isRunning) {
         if ((state.durationMillis == 0L && state.elapsedMillis == 0L && !state.isRunning) ||
@@ -86,7 +75,10 @@ fun TimerScreen(
         }
     }
 
-    val totalDurationZero = (selectedHours == 0 && selectedMinutes == 0 && selectedSeconds == 0)
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        val notificationPermission = rememberPermission(Manifest.permission.POST_NOTIFICATIONS)
+        LaunchedEffect(Unit) { notificationPermission.launchPermissionRequest() }
+    }
 
     Scaffold(
         topBar = {
@@ -244,6 +236,7 @@ fun TimerScreen(
             }
 
             Spacer(Modifier.height(10.dp))
+
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.fillMaxWidth()
@@ -305,7 +298,22 @@ fun TimerScreen(
                 }
             }
 
+            val favorites = allExercises.filter { it.email == userEmail && it.isFavorite }
+
+            TomorrowWorkoutCard(
+                favorites = favorites,
+                selected = selectedExercises,
+                onAdd = { ex -> selectedExercises = selectedExercises + ex },
+                onRemove = { ex -> selectedExercises = selectedExercises - ex },
+                onClear = { selectedExercises = emptyList() },
+                onExport = {
+                    val intent = createCalendarIntent(selectedExercises)
+                    context.startActivity(intent)
+                }
+            )
+
             Spacer(Modifier.height(24.dp))
+
             Text(
                 "Recent Workouts",
                 style = MaterialTheme.typography.titleMedium.copy(
@@ -341,6 +349,184 @@ fun TimerScreen(
             Spacer(Modifier.height(32.dp))
         }
     }
+}
+
+@Composable
+fun TomorrowWorkoutCard(
+    favorites: List<Exercise>,
+    selected: List<Exercise>,
+    onAdd: (Exercise) -> Unit,
+    onRemove: (Exercise) -> Unit,
+    onClear: () -> Unit,
+    onExport: () -> Unit
+) {
+    val colors = MaterialTheme.colorScheme
+    var showDialog by remember { mutableStateOf(false) }
+    val available = favorites.filter { it !in selected }
+
+    Card(
+        shape = RoundedCornerShape(22.dp),
+        elevation = CardDefaults.cardElevation(6.dp),
+        colors = CardDefaults.cardColors(containerColor = colors.surface),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 14.dp)
+    ) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = 18.dp, horizontal = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                "Tomorrow's Workout",
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Medium,
+                    color = colors.primary
+                ),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(Modifier.height(8.dp))
+
+            if (selected.isEmpty()) {
+                Text(
+                    "No exercises selected.",
+                    color = colors.onSurfaceVariant,
+                    fontSize = 15.sp,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center
+                )
+            } else {
+                // Lista esercizi scelti
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 6.dp),
+                ) {
+                    selected.forEach { ex ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp)
+                        ) {
+                            Text(
+                                ex.name,
+                                fontWeight = FontWeight.Medium,
+                                color = colors.primary,
+                                modifier = Modifier.weight(1f),
+                                fontSize = 16.sp
+                            )
+                            IconButton(
+                                onClick = { onRemove(ex) }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Remove,
+                                    contentDescription = "Remove",
+                                    tint = colors.error
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(8.dp))
+
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                OutlinedButton(
+                    onClick = { showDialog = true },
+                    shape = RoundedCornerShape(13.dp)
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Add")
+                    Spacer(Modifier.width(4.dp))
+                    Text("Add")
+                }
+                TextButton(
+                    onClick = { onClear() },
+                    enabled = selected.isNotEmpty()
+                ) {
+                    Text("Clear all", color = colors.error, fontSize = 14.sp)
+                }
+                Button(
+                    onClick = onExport,
+                    enabled = selected.isNotEmpty(),
+                    modifier = Modifier.height(40.dp),
+                    shape = RoundedCornerShape(13.dp)
+                ) {
+                    Text("Export to Calendar", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                }
+            }
+        }
+    }
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = {
+                Text("Add favorite exercise", textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+            },
+            text = {
+                if (available.isEmpty()) {
+                    Text("All favorites already added.", textAlign = TextAlign.Center)
+                } else {
+                    Column {
+                        available.forEach { ex ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        onAdd(ex)
+                                        showDialog = false
+                                    }
+                                    .padding(vertical = 10.dp, horizontal = 2.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    ex.name,
+                                    fontWeight = FontWeight.Medium,
+                                    color = colors.primary,
+                                    fontSize = 16.sp,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                Icon(
+                                    imageVector = Icons.Default.Add,
+                                    contentDescription = null,
+                                    tint = colors.primary
+                                )
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { showDialog = false }) { Text("Close") }
+            }
+        )
+    }
+}
+
+fun createCalendarIntent(exercises: List<Exercise>): Intent {
+    val calendarIntent = Intent(Intent.ACTION_INSERT).apply {
+        data = CalendarContract.Events.CONTENT_URI
+        putExtra(CalendarContract.Events.TITLE, "Workout Plan")
+        putExtra(
+            CalendarContract.Events.DESCRIPTION,
+            exercises.joinToString("\n") { it.name }
+        )
+        // Data di domani, ora 18:00
+        val calendar = Calendar.getInstance().apply { add(Calendar.DATE, 1); set(Calendar.HOUR_OF_DAY, 18) }
+        putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, calendar.timeInMillis)
+        putExtra(CalendarContract.EXTRA_EVENT_END_TIME, calendar.timeInMillis + 60 * 60 * 1000) // 1 ora
+    }
+    return calendarIntent
 }
 
 @Composable

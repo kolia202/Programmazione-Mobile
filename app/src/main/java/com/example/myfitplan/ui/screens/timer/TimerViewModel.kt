@@ -5,10 +5,14 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myfitplan.R
+import com.example.myfitplan.data.database.Exercise
 import com.example.myfitplan.data.database.FastingSession
 import com.example.myfitplan.data.repositories.DatastoreRepository
 import com.example.myfitplan.data.repositories.MyFitPlanRepositories
@@ -165,5 +169,17 @@ class TimerViewModel(
             datastore.remove("workout_timer_duration")
             datastore.remove("workout_timer_running")
         }
+    }
+
+    var selectedExercises by mutableStateOf<List<Exercise>>(emptyList())
+
+    fun addExerciseToPlan(ex: Exercise) {
+        selectedExercises = selectedExercises + ex
+    }
+    fun removeExerciseFromPlan(ex: Exercise) {
+        selectedExercises = selectedExercises - ex
+    }
+    fun clearPlan() {
+        selectedExercises = emptyList()
     }
 }

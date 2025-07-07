@@ -139,6 +139,8 @@ fun HomeScreen(
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
                     color = colors.primary,
                     fontSize = 20.sp,
+                    modifier = Modifier
+                        .clickable { navController.navigate(MyFitPlanRoute.Food) }
                 )
             }
 
@@ -175,6 +177,8 @@ fun HomeScreen(
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
                     color = colors.primary,
                     fontSize = 20.sp,
+                    modifier = Modifier
+                        .clickable { navController.navigate(MyFitPlanRoute.Exercise) }
                 )
             }
 

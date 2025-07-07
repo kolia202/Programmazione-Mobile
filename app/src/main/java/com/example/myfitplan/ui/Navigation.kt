@@ -118,10 +118,18 @@ fun MyFitPlanNavGraph(
         }
         composable<MyFitPlanRoute.FastingTimer> {
             val timerViewModel: TimerViewModel = koinViewModel()
-            TimerScreen(
-                navController = navController,
-                viewModel = timerViewModel
-            )
+            val context = LocalContext.current
+            val repo = getKoin().get<MyFitPlanRepositories>()
+            val datastore = remember { DatastoreRepository(context.dataStore) }
+            val userEmail by datastore.getUserEmail().collectAsState(initial = "")
+            if (userEmail.isNotBlank()) {
+                TimerScreen(
+                    navController = navController,
+                    viewModel = timerViewModel,
+                    repo = repo,
+                    userEmail = userEmail
+                )
+            }
         }
         composable<MyFitPlanRoute.Exercise> {
             val context = LocalContext.current
