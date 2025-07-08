@@ -16,6 +16,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -38,9 +39,10 @@ fun FoodScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     var selectedNav by remember { mutableStateOf(NavBarItem.Ristoranti) }
-    var expandedUnit by remember { mutableStateOf(false) }
     var expandedCategory by remember { mutableStateOf(false) }
+    var expandedUnit by remember { mutableStateOf(false) }
     val colors = MaterialTheme.colorScheme
+    var isBarcodeMode by remember { mutableStateOf(false) }
 
     LaunchedEffect(userEmail) { viewModel.init(userEmail) }
 
@@ -52,11 +54,11 @@ fun FoodScreen(
             )
         },
         bottomBar = {
-                NavBar(
-                    selected = selectedNav,
-                    onItemSelected = { selectedNav = it },
-                    navController = navController
-                )
+            NavBar(
+                selected = selectedNav,
+                onItemSelected = { selectedNav = it },
+                navController = navController
+            )
         }
     ) { padding ->
         Column(
@@ -101,116 +103,80 @@ fun FoodScreen(
                         ),
                         modifier = Modifier.padding(bottom = 10.dp)
                     )
-                    OutlinedTextField(
-                        value = state.name,
-                        onValueChange = viewModel::onNameChange,
-                        label = { Text("Food name") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
+
                     Row(
                         Modifier
                             .fillMaxWidth()
-                            .padding(top = 4.dp, bottom = 10.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                            .padding(vertical = 8.dp),
+                        horizontalArrangement = Arrangement.Center
                     ) {
-                        Text("Category:", fontWeight = FontWeight.Medium, modifier = Modifier.padding(end = 6.dp))
-                        Box {
-                            Button(
-                                onClick = { expandedCategory = true },
-                                shape = RoundedCornerShape(14.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = colors.primary)
-                            ) {
-                                Text(state.category, color = colors.onPrimary)
-                            }
-                            DropdownMenu(
-                                expanded = expandedCategory,
-                                onDismissRequest = { expandedCategory = false }
-                            ) {
-                                listOf("Breakfast", "Lunch", "Dinner", "Snack").forEach { cat ->
-                                    DropdownMenuItem(
-                                        text = { Text(cat) },
-                                        onClick = {
-                                            viewModel.onCategoryChange(cat)
-                                            expandedCategory = false
-                                        }
-                                    )
-                                }
-                            }
+                        Button(
+                            onClick = { isBarcodeMode = false },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (!isBarcodeMode) colors.primary else colors.secondaryContainer
+                            ),
+                            modifier = Modifier.padding(end = 8.dp)
+                        ) {
+                            Text(
+                                "Manual entry",
+                                color = if (!isBarcodeMode) colors.onPrimary else colors.primary
+                            )
+                        }
+                        Button(
+                            onClick = { isBarcodeMode = true },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (isBarcodeMode) colors.primary else colors.secondaryContainer
+                            )
+                        ) {
+                            Text(
+                                "Barcode",
+                                color = if (isBarcodeMode) colors.onPrimary else colors.primary
+                            )
                         }
                     }
-                    OutlinedTextField(
-                        value = state.kcal,
-                        onValueChange = { viewModel.onKcalChange(it.filter { ch -> ch.isDigit() || ch == '.' }) },
-                        label = { Text("Kcal per 100g/ml") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    OutlinedTextField(
-                        value = state.carbs,
-                        onValueChange = { viewModel.onCarbsChange(it.filter { ch -> ch.isDigit() || ch == '.' }) },
-                        label = { Text("Carbs per 100g/ml") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    OutlinedTextField(
-                        value = state.protein,
-                        onValueChange = { viewModel.onProteinChange(it.filter { ch -> ch.isDigit() || ch == '.' }) },
-                        label = { Text("Proteins per 100g/ml") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    OutlinedTextField(
-                        value = state.fat,
-                        onValueChange = { viewModel.onFatChange(it.filter { ch -> ch.isDigit() || ch == '.' }) },
-                        label = { Text("Fat per 100g/ml") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(Modifier.height(6.dp))
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text("Unit:", fontWeight = FontWeight.Medium)
-                        Box {
-                            Button(
-                                onClick = { expandedUnit = true },
-                                shape = RoundedCornerShape(14.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = colors.primary)
-                            ) {
-                                Text(state.unit.string, color = colors.onPrimary)
-                            }
-                            DropdownMenu(
-                                expanded = expandedUnit,
-                                onDismissRequest = { expandedUnit = false }
-                            ) {
-                                DropdownMenuItem(
-                                    text = { Text("Grams") },
-                                    onClick = {
-                                        viewModel.onUnitChange(FoodUnit.GRAMS)
-                                        expandedUnit = false
-                                    }
-                                )
-                                DropdownMenuItem(
-                                    text = { Text("Milliliters") },
-                                    onClick = {
-                                        viewModel.onUnitChange(FoodUnit.MILLILITERS)
-                                        expandedUnit = false
-                                    }
-                                )
-                            }
+
+                    if (isBarcodeMode) {
+                        OutlinedTextField(
+                            value = state.barcode,
+                            onValueChange = viewModel::onBarcodeChange,
+                            label = { Text("Barcode (EAN/UPC)") },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp)
+                        )
+                        Button(
+                            onClick = { viewModel.fetchFoodByBarcode() },
+                            enabled = state.barcode.isNotBlank(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 6.dp, bottom = 10.dp)
+                        ) {
+                            Text("Search food by barcode")
                         }
+                        if (state.name.isNotBlank()) {
+                            FoodManualFields(
+                                state = state,
+                                viewModel = viewModel,
+                                expandedCategory = expandedCategory,
+                                setExpandedCategory = { expandedCategory = it },
+                                expandedUnit = expandedUnit,
+                                setExpandedUnit = { expandedUnit = it },
+                                colors = colors
+                            )
+                        }
+                    } else {
+                        FoodManualFields(
+                            state = state,
+                            viewModel = viewModel,
+                            expandedCategory = expandedCategory,
+                            setExpandedCategory = { expandedCategory = it },
+                            expandedUnit = expandedUnit,
+                            setExpandedUnit = { expandedUnit = it },
+                            colors = colors
+                        )
                     }
-                    Spacer(Modifier.height(12.dp))
-                    Button(
-                        onClick = { viewModel.saveFood() },
-                        enabled = state.name.isNotBlank() && state.kcal.isNotBlank(),
-                        shape = RoundedCornerShape(14.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp)
-                    ) {
-                        Text("Add food", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
-                    }
+
                     if (state.success) {
                         AlertDialog(
                             onDismissRequest = { viewModel.resetSuccess() },
@@ -270,6 +236,128 @@ fun FoodScreen(
             }
             Spacer(Modifier.height(20.dp))
         }
+    }
+}
+
+@Composable
+fun FoodManualFields(
+    state: FoodUiState,
+    viewModel: FoodViewModel,
+    expandedCategory: Boolean,
+    setExpandedCategory: (Boolean) -> Unit,
+    expandedUnit: Boolean,
+    setExpandedUnit: (Boolean) -> Unit,
+    colors: ColorScheme
+) {
+    OutlinedTextField(
+        value = state.name,
+        onValueChange = viewModel::onNameChange,
+        label = { Text("Food name") },
+        modifier = Modifier.fillMaxWidth()
+    )
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(top = 4.dp, bottom = 10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text("Category:", fontWeight = FontWeight.Medium, modifier = Modifier.padding(end = 6.dp))
+        Box {
+            Button(
+                onClick = { setExpandedCategory(true) },
+                shape = RoundedCornerShape(14.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = colors.primary)
+            ) {
+                Text(state.category, color = colors.onPrimary)
+            }
+            DropdownMenu(
+                expanded = expandedCategory,
+                onDismissRequest = { setExpandedCategory(false) }
+            ) {
+                listOf("Breakfast", "Lunch", "Dinner", "Snack").forEach { cat ->
+                    DropdownMenuItem(
+                        text = { Text(cat) },
+                        onClick = {
+                            viewModel.onCategoryChange(cat)
+                            setExpandedCategory(false)
+                        }
+                    )
+                }
+            }
+        }
+    }
+    OutlinedTextField(
+        value = state.kcal,
+        onValueChange = { viewModel.onKcalChange(it.filter { ch -> ch.isDigit() || ch == '.' }) },
+        label = { Text("Kcal per 100g/ml") },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        modifier = Modifier.fillMaxWidth()
+    )
+    OutlinedTextField(
+        value = state.carbs,
+        onValueChange = { viewModel.onCarbsChange(it.filter { ch -> ch.isDigit() || ch == '.' }) },
+        label = { Text("Carbs per 100g/ml") },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        modifier = Modifier.fillMaxWidth()
+    )
+    OutlinedTextField(
+        value = state.protein,
+        onValueChange = { viewModel.onProteinChange(it.filter { ch -> ch.isDigit() || ch == '.' }) },
+        label = { Text("Proteins per 100g/ml") },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        modifier = Modifier.fillMaxWidth()
+    )
+    OutlinedTextField(
+        value = state.fat,
+        onValueChange = { viewModel.onFatChange(it.filter { ch -> ch.isDigit() || ch == '.' }) },
+        label = { Text("Fat per 100g/ml") },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        modifier = Modifier.fillMaxWidth()
+    )
+    Spacer(Modifier.height(6.dp))
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text("Unit:", fontWeight = FontWeight.Medium)
+        Box {
+            Button(
+                onClick = { setExpandedUnit(true) },
+                shape = RoundedCornerShape(14.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = colors.primary)
+            ) {
+                Text(state.unit.string, color = colors.onPrimary)
+            }
+            DropdownMenu(
+                expanded = expandedUnit,
+                onDismissRequest = { setExpandedUnit(false) }
+            ) {
+                DropdownMenuItem(
+                    text = { Text("Grams") },
+                    onClick = {
+                        viewModel.onUnitChange(FoodUnit.GRAMS)
+                        setExpandedUnit(false)
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text("Milliliters") },
+                    onClick = {
+                        viewModel.onUnitChange(FoodUnit.MILLILITERS)
+                        setExpandedUnit(false)
+                    }
+                )
+            }
+        }
+    }
+    Spacer(Modifier.height(12.dp))
+    Button(
+        onClick = { viewModel.saveFood() },
+        enabled = state.name.isNotBlank() && state.kcal.isNotBlank(),
+        shape = RoundedCornerShape(14.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(50.dp)
+    ) {
+        Text("Add food", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
     }
 }
 

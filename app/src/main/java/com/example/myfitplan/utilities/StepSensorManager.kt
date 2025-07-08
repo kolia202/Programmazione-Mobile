@@ -13,6 +13,8 @@ class StepSensorManager(context: Context) : SensorEventListener {
     private val stepSensor: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
     private val _steps = MutableStateFlow(0)
     val steps: StateFlow<Int> get() = _steps
+    var lastRawSensorValue: Float? = null
+        private set
 
     private var initialSteps: Float? = null
 
@@ -28,6 +30,7 @@ class StepSensorManager(context: Context) : SensorEventListener {
 
     override fun onSensorChanged(event: SensorEvent?) {
         event?.let {
+            lastRawSensorValue = it.values[0]
             if (initialSteps == null) initialSteps = it.values[0]
             _steps.value = (it.values[0] - (initialSteps ?: 0f)).toInt()
         }

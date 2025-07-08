@@ -124,25 +124,34 @@ class HomeViewModel(
         )
     }
 
-    // --- GESTIONE PASSI & GOAL ---
+
     private fun observeSteps() {
         viewModelScope.launch {
             val user = _uiState.value.user
             val date = DateUtils.formattedDate(DateUtils.getToday())
 
-            // Osserva il sensore in tempo reale
             stepSensorManager.steps.collect { sensorSteps ->
-                // Salva nel DB
+
+                val rawSensorValue = stepSensorManager.lastRawSensorValue ?: 0f
+
+                var baseSteps = datastoreRepository.getTodayBaseSteps()
+                if (baseSteps < 0f) {
+                    datastoreRepository.saveTodayBaseSteps(rawSensorValue)
+                    baseSteps = rawSensorValue
+                }
+
+                val todaySteps = (rawSensorValue - baseSteps).toInt().coerceAtLeast(0)
+
                 user?.let {
                     repositories.upsertSteps(
-                        StepCounter(it.email, date, sensorSteps, _uiState.value.stepGoal)
+                        StepCounter(it.email, date, todaySteps, _uiState.value.stepGoal)
                     )
                 }
-                val kcal = stepsToKcal(sensorSteps, user)
-                val km = stepsToKm(sensorSteps)
+                val kcal = stepsToKcal(todaySteps, user)
+                val km = stepsToKm(todaySteps)
                 _uiState.update {
                     it.copy(
-                        steps = sensorSteps,
+                        steps = todaySteps,
                         stepKcal = kcal,
                         stepKm = km
                     )

@@ -8,6 +8,13 @@ import com.example.myfitplan.data.repositories.MyFitPlanRepositories
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
+// HTTP + JSON
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.bodyAsText
+import org.json.JSONObject
+
 data class FoodUiState(
     val allFoods: List<Food> = emptyList(),
     val filteredFoods: List<Food> = emptyList(),
@@ -22,6 +29,7 @@ data class FoodUiState(
     val protein: String = "",
     val fat: String = "",
     val unit: FoodUnit = FoodUnit.GRAMS,
+    val barcode: String = "",
     val isFavorite: Boolean = false,
     val success: Boolean = false,
     val error: String? = null
@@ -64,7 +72,6 @@ class FoodViewModel(
         }
     }
 
-    // Campi aggiunta
     fun onNameChange(name: String) { _uiState.update { it.copy(name = name) } }
     fun onCategoryChange(category: String) { _uiState.update { it.copy(category = category) } }
     fun onKcalChange(kcal: String) { _uiState.update { it.copy(kcal = kcal) } }
@@ -72,6 +79,7 @@ class FoodViewModel(
     fun onProteinChange(protein: String) { _uiState.update { it.copy(protein = protein) } }
     fun onFatChange(fat: String) { _uiState.update { it.copy(fat = fat) } }
     fun onUnitChange(unit: FoodUnit) { _uiState.update { it.copy(unit = unit) } }
+    fun onBarcodeChange(barcode: String) { _uiState.update { it.copy(barcode = barcode) } }
 
     fun selectCategory(cat: String) {
         _uiState.update { it.copy(selectedCategory = cat, searchQuery = "") }
@@ -95,6 +103,39 @@ class FoodViewModel(
         }
     }
 
+    fun fetchFoodByBarcode() {
+        val barcode = _uiState.value.barcode
+        if (barcode.isBlank()) return
+        viewModelScope.launch {
+            val client = HttpClient(CIO)
+            try {
+                val url = "https://world.openfoodfacts.org/api/v0/product/$barcode.json"
+                val response: String = client.get(url).bodyAsText()
+                val json = JSONObject(response)
+                if (json.optInt("status") == 1) {
+                    val product = json.getJSONObject("product")
+                    val nutriments = product.optJSONObject("nutriments") ?: JSONObject()
+                    _uiState.update {
+                        it.copy(
+                            name = product.optString("product_name", ""),
+                            kcal = nutriments.optDouble("energy-kcal_100g", 0.0).toString(),
+                            carbs = nutriments.optDouble("carbohydrates_100g", 0.0).toString(),
+                            protein = nutriments.optDouble("proteins_100g", 0.0).toString(),
+                            fat = nutriments.optDouble("fat_100g", 0.0).toString(),
+                            error = null
+                        )
+                    }
+                } else {
+                    _uiState.update { it.copy(error = "Food not found via barcode") }
+                }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(error = "Errore nella ricerca: ${e.localizedMessage}") }
+            } finally {
+                client.close()
+            }
+        }
+    }
+
     fun saveFood() {
         viewModelScope.launch {
             val state = _uiState.value
@@ -114,6 +155,7 @@ class FoodViewModel(
                 _uiState.update { it.copy(
                     name = "", category = "Breakfast", kcal = "", carbs = "",
                     protein = "", fat = "", unit = FoodUnit.GRAMS,
+                    barcode = "",
                     success = true, error = null
                 )}
             } catch (e: Exception) {

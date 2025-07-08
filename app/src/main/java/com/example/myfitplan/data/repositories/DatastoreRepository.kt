@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.example.myfitplan.data.database.ActivityType
 import com.example.myfitplan.data.database.DietType
@@ -39,7 +40,7 @@ class DatastoreRepository(
         private val B6_KEY = stringPreferencesKey("b6")
         private val SELECTED_DATE_MILLIS_KEY = stringPreferencesKey("selectedDateMillis")
         private val STEP_GOAL_KEY = stringPreferencesKey("stepGoal")
-        private val SHOW_TIMER_POPUP_KEY = stringPreferencesKey("show_timer_popup") // Tua aggiunta!
+        private val SHOW_TIMER_POPUP_KEY = stringPreferencesKey("show_timer_popup")
     }
 
     val user: Flow<User?> = dataStore.data.map { prefs ->
@@ -137,4 +138,19 @@ class DatastoreRepository(
 
     suspend fun remove(key: String) =
         dataStore.edit { it.remove(androidx.datastore.preferences.core.longPreferencesKey(key)) }
+
+    fun getStepsBaseKeyForToday(): Preferences.Key<Float> {
+        val date = java.text.SimpleDateFormat("yyyy-MM-dd").format(java.util.Date())
+        return floatPreferencesKey("steps_base_$date")
+    }
+
+    suspend fun saveTodayBaseSteps(base: Float) {
+        val key = getStepsBaseKeyForToday()
+        dataStore.edit { it[key] = base }
+    }
+
+    suspend fun getTodayBaseSteps(): Float {
+        val key = getStepsBaseKeyForToday()
+        return dataStore.data.first()[key] ?: -1f
+    }
 }
