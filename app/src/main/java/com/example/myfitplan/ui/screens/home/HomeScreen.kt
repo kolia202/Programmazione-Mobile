@@ -182,18 +182,6 @@ fun HomeScreen(
                 )
             }
 
-            StepCardCustom(
-                steps = state.steps,
-                km = state.stepKm,
-                kcal = state.stepKcal,
-                progress = (state.steps.toFloat() / state.stepGoal).coerceIn(0f, 1f),
-                goal = state.stepGoal,
-                onEditGoal = {
-                    newGoalText = state.stepGoal.toString()
-                    showEditGoalDialog = true
-                }
-            )
-
             if (showEditGoalDialog) {
                 AlertDialog(
                     onDismissRequest = { showEditGoalDialog = false },
@@ -209,7 +197,6 @@ fun HomeScreen(
                         Button(
                             onClick = {
                                 newGoalText.toIntOrNull()?.let {
-                                    viewModel.setStepGoal(it)
                                     showEditGoalDialog = false
                                 }
                             }
@@ -224,92 +211,6 @@ fun HomeScreen(
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))
-        }
-    }
-}
-
-@Composable
-fun StepCardCustom(
-    steps: Int,
-    km: Float,
-    kcal: Int,
-    progress: Float,
-    goal: Int,
-    onEditGoal: () -> Unit
-) {
-    val colors = MaterialTheme.colorScheme
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        shape = RoundedCornerShape(22.dp),
-        elevation = CardDefaults.cardElevation(4.dp),
-        colors = CardDefaults.cardColors(containerColor = colors.surface)
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(20.dp)
-        ) {
-            Text(
-                "$steps steps",
-                fontWeight = FontWeight.Bold,
-                fontSize = 22.sp,
-                color = colors.onSurface,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp)
-            ) {
-                Text(
-                    String.format("%.2f km", km),
-                    fontSize = 16.sp,
-                    color = colors.onSurfaceVariant
-                )
-                Text(
-                    "  |  ",
-                    fontSize = 16.sp,
-                    color = colors.onSurfaceVariant,
-                    modifier = Modifier.padding(horizontal = 4.dp)
-                )
-                Text(
-                    "$kcal Kcal",
-                    fontSize = 16.sp,
-                    color = colors.onSurfaceVariant
-                )
-            }
-
-            LinearProgressIndicator(
-                progress = { progress },
-                modifier = Modifier
-                    .fillMaxWidth(0.85f)
-                    .height(25.dp)
-                    .padding(vertical = 8.dp),
-                color = colors.primary,
-                trackColor = colors.secondaryContainer,
-            )
-
-            Text(
-                "Goal: $goal steps",
-                fontSize = 14.sp,
-                color = colors.onSurfaceVariant,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            Button(
-                onClick = onEditGoal,
-                shape = RoundedCornerShape(16.dp),
-                modifier = Modifier.padding(bottom = 8.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = colors.primary,
-                    contentColor = colors.onPrimary
-                )
-            ) {
-                Text("Edit")
-            }
         }
     }
 }

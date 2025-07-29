@@ -9,7 +9,6 @@ import com.example.myfitplan.data.database.StepCounter
 import com.example.myfitplan.data.repositories.MyFitPlanRepositories
 import com.example.myfitplan.data.repositories.DatastoreRepository
 import com.example.myfitplan.utilities.DateUtils
-import com.example.myfitplan.utilities.StepSensorManager
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
@@ -41,7 +40,6 @@ data class DailySummary(
 class HomeViewModel(
     val repositories: MyFitPlanRepositories,
     private val datastoreRepository: DatastoreRepository,
-    private val stepSensorManager: StepSensorManager
 ) : ViewModel() {
 
     private val today = DateUtils.getToday()
@@ -63,9 +61,6 @@ class HomeViewModel(
         }
         setDate(today)
         observeUser()
-        observeStepGoal()
-        observeSteps()
-        stepSensorManager.startListening()
     }
 
     private fun observeUser() {
@@ -124,60 +119,6 @@ class HomeViewModel(
         )
     }
 
-
-    private fun observeSteps() {
-        viewModelScope.launch {
-            val user = _uiState.value.user
-            val date = DateUtils.formattedDate(DateUtils.getToday())
-
-            stepSensorManager.steps.collect { sensorSteps ->
-
-                val rawSensorValue = stepSensorManager.lastRawSensorValue ?: 0f
-
-                var baseSteps = datastoreRepository.getTodayBaseSteps()
-                if (baseSteps < 0f) {
-                    datastoreRepository.saveTodayBaseSteps(rawSensorValue)
-                    baseSteps = rawSensorValue
-                }
-
-                val todaySteps = (rawSensorValue - baseSteps).toInt().coerceAtLeast(0)
-
-                user?.let {
-                    repositories.upsertSteps(
-                        StepCounter(it.email, date, todaySteps, _uiState.value.stepGoal)
-                    )
-                }
-                val kcal = stepsToKcal(todaySteps, user)
-                val km = stepsToKm(todaySteps)
-                _uiState.update {
-                    it.copy(
-                        steps = todaySteps,
-                        stepKcal = kcal,
-                        stepKm = km
-                    )
-                }
-            }
-        }
-    }
-
-    private fun observeStepGoal() {
-        viewModelScope.launch {
-            datastoreRepository.stepGoal.collect { goal ->
-                _uiState.update { it.copy(stepGoal = goal) }
-            }
-        }
-    }
-
-    fun setStepGoal(newGoal: Int) {
-        viewModelScope.launch {
-            datastoreRepository.setStepGoal(newGoal)
-            val user = _uiState.value.user ?: return@launch
-            val date = DateUtils.formattedDate(DateUtils.getToday())
-            val stepCounter = StepCounter(user.email, date, _uiState.value.steps, newGoal)
-            repositories.upsertSteps(stepCounter)
-            _uiState.update { it.copy(stepGoal = newGoal) }
-        }
-    }
 
     fun stepsToKm(steps: Int): Float = (steps * 0.7f) / 1000f
     fun stepsToKcal(steps: Int, user: User?): Int {

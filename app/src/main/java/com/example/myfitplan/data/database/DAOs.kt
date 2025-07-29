@@ -95,15 +95,6 @@ interface ExerciseInsideDayDAO {
 }
 
 @Dao
-interface StepCounterDAO {
-    @Query("SELECT * FROM StepCounter WHERE email = :email AND date = :date")
-    fun getSteps(email: String, date: String): Flow<StepCounter?>
-
-    @Upsert
-    suspend fun upsert(stepCounter: StepCounter)
-}
-
-@Dao
 interface BadgeDAO{
     @Query("SELECT * FROM Badge")
     fun getAllBadges(): Flow<List<Badge>>

@@ -39,7 +39,6 @@ class DatastoreRepository(
         private val B5_KEY = stringPreferencesKey("b5")
         private val B6_KEY = stringPreferencesKey("b6")
         private val SELECTED_DATE_MILLIS_KEY = stringPreferencesKey("selectedDateMillis")
-        private val STEP_GOAL_KEY = stringPreferencesKey("stepGoal")
         private val SHOW_TIMER_POPUP_KEY = stringPreferencesKey("show_timer_popup")
     }
 
@@ -116,9 +115,6 @@ class DatastoreRepository(
         dataStore.edit { it[key] = todayMillis.toString() }
         return todayMillis
     }
-
-    val stepGoal: Flow<Int> = dataStore.data.map { prefs -> prefs[STEP_GOAL_KEY]?.toIntOrNull() ?: 1000 }
-    suspend fun setStepGoal(goal: Int) = dataStore.edit { it[STEP_GOAL_KEY] = goal.toString() }
 
     fun getUserEmail(): Flow<String> {
         return dataStore.data.map { preferences -> preferences[EMAIL_KEY] ?: "" }
