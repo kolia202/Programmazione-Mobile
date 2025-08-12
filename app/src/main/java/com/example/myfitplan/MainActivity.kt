@@ -64,7 +64,7 @@ class MainActivity : ComponentActivity() {
                 var showPermissionPermanentlyDenied by remember { mutableStateOf(false) }
 
                 val locationPermission =
-                    rememberPermission(Manifest.permission.ACCESS_COARSE_LOCATION) { status ->
+                    rememberPermission(Manifest.permission.ACCESS_FINE_LOCATION) { status ->
                         when (status) {
                             PermissionStatus.Granted -> {
                                 val result = locationService.requestCurrentLocation()

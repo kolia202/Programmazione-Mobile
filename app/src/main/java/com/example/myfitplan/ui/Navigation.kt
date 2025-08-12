@@ -40,6 +40,7 @@ import org.koin.core.parameter.parametersOf
 import com.example.myfitplan.data.database.MealType
 import com.example.myfitplan.ui.screens.home.HomeViewModel
 import com.example.myfitplan.ui.screens.home.SummaryScreen
+import com.example.myfitplan.ui.screens.tracker.TrackerScreen
 import com.example.myfitplan.utilities.DateUtils.getTodayDate
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
@@ -57,6 +58,7 @@ sealed interface MyFitPlanRoute {
     @Serializable data object Exercise : MyFitPlanRoute
     @Serializable data object Food : MyFitPlanRoute
     @Serializable data object Summary : MyFitPlanRoute
+    @Serializable data object Tracker : MyFitPlanRoute
 }
 
 @Composable
@@ -181,6 +183,9 @@ fun MyFitPlanNavGraph(
         composable<MyFitPlanRoute.Summary> {
             val viewModel: HomeViewModel = koinViewModel()
             SummaryScreen(navController = navController, viewModel = viewModel)
+        }
+        composable<MyFitPlanRoute.Tracker> {
+            TrackerScreen(navController)
         }
     }
 }

@@ -174,3 +174,23 @@ data class FastingSession(
     val endTime: Long,
     val durationMillis: Long
 )
+
+@Entity
+data class Route(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val email: String,
+    val title: String,
+    val date: String,
+    val durationMillis: Long,
+    val distanceMeters: Float,
+    val kcal: Int
+)
+
+@Entity(primaryKeys = ["routeId","seq"])
+data class RoutePoint(
+    val routeId: Long,
+    val seq: Int,
+    val lat: Double,
+    val lng: Double,
+    val timestamp: Long
+)

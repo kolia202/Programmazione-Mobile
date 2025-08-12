@@ -95,4 +95,6 @@ dependencies {
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.cio)
     implementation(libs.json)
+    implementation(libs.osmdroid.android)
+    implementation(libs.play.services.location)
 }

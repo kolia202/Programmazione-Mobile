@@ -12,9 +12,11 @@ import androidx.room.RoomDatabase
         ExerciseInsideDay::class,
         FastingSession::class,
         Badge::class,
-        BadgeUser::class
+        BadgeUser::class,
+        Route::class,
+        RoutePoint::class
     ],
-    version = 7,
+    version = 8,
     exportSchema = false
 )
 abstract class MyFitPlanDatabase : RoomDatabase() {
@@ -26,4 +28,5 @@ abstract class MyFitPlanDatabase : RoomDatabase() {
     abstract fun fastingSessionDAO(): FastingSessionDAO
     abstract fun badgeDAO(): BadgeDAO
     abstract fun badgeUserDAO(): BadgeUserDAO
+    abstract fun routeDAO(): RouteDAO
 }

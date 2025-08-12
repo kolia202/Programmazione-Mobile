@@ -151,3 +151,13 @@ interface FastingSessionDAO {
     @Query("DELETE FROM fasting_sessions WHERE id = (SELECT id FROM fasting_sessions ORDER BY startTime ASC LIMIT 1)")
     suspend fun deleteOldestSession()
 }
+
+@Dao
+interface RouteDAO {
+    @Insert suspend fun insertRoute(route: Route): Long
+    @Insert suspend fun insertPoints(points: List<RoutePoint>)
+    @Query("SELECT * FROM Route WHERE email = :email ORDER BY id DESC")
+    fun getRoutes(email: String): Flow<List<Route>>
+    @Query("SELECT * FROM RoutePoint WHERE routeId = :routeId ORDER BY seq ASC")
+    suspend fun getRoutePoints(routeId: Long): List<RoutePoint>
+}

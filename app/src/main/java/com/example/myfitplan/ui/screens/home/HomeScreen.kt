@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.DinnerDining
 import androidx.compose.material.icons.filled.EmojiFoodBeverage
 import androidx.compose.material.icons.filled.FreeBreakfast
 import androidx.compose.material.icons.filled.LunchDining
+import androidx.compose.material.icons.filled.Map
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -181,35 +182,9 @@ fun HomeScreen(
                         .clickable { navController.navigate(MyFitPlanRoute.Exercise) }
                 )
             }
-
-            if (showEditGoalDialog) {
-                AlertDialog(
-                    onDismissRequest = { showEditGoalDialog = false },
-                    title = { Text("Edit Goal Steps", color = colors.onSurface) },
-                    text = {
-                        OutlinedTextField(
-                            value = newGoalText,
-                            onValueChange = { newGoalText = it.filter { ch -> ch.isDigit() } },
-                            label = { Text("Goal steps", color = colors.onSurfaceVariant) }
-                        )
-                    },
-                    confirmButton = {
-                        Button(
-                            onClick = {
-                                newGoalText.toIntOrNull()?.let {
-                                    showEditGoalDialog = false
-                                }
-                            }
-                        ) { Text("Save") }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = { showEditGoalDialog = false }) { Text("Cancel") }
-                    },
-                    containerColor = colors.surface,
-                    titleContentColor = colors.onSurface,
-                    textContentColor = colors.onSurface,
-                )
-            }
+            OutdoorTrackingCard(
+                onClick = { navController.navigate(MyFitPlanRoute.Tracker) }
+            )
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
@@ -424,5 +399,58 @@ fun MacroProgressBar(label: String, value: Int, target: Int) {
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(top = 2.dp)
         )
+    }
+}
+
+@Composable
+private fun OutdoorTrackingCard(onClick: () -> Unit) {
+    val colors = MaterialTheme.colorScheme
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+            .clickable { onClick() },
+        shape = RoundedCornerShape(22.dp),
+        elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(containerColor = colors.surface)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 18.dp, vertical = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .background(colors.primary.copy(alpha = 0.08f), shape = CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Map,
+                    contentDescription = "Outdoor Tracking",
+                    tint = colors.primary,
+                    modifier = Modifier.size(28.dp)
+                )
+            }
+            Spacer(Modifier.width(14.dp))
+            Column(Modifier.weight(1f)) {
+                Text(
+                    text = "Outdoor Tracking",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = colors.onSurface
+                )
+                Text(
+                    text = "GPS + Mappa + Percorso in tempo reale",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = colors.onSurfaceVariant
+                )
+            }
+            AssistChip(
+                onClick = onClick,
+                label = { Text("Apri") }
+            )
+        }
     }
 }

@@ -13,7 +13,9 @@ import com.example.myfitplan.data.database.FoodInsideMeal
 import com.example.myfitplan.data.database.FoodInsideMealDAO
 import com.example.myfitplan.data.database.FoodInsideMealWithFood
 import com.example.myfitplan.data.database.MealType
-import com.example.myfitplan.data.database.StepCounter
+import com.example.myfitplan.data.database.Route
+import com.example.myfitplan.data.database.RouteDAO
+import com.example.myfitplan.data.database.RoutePoint
 import com.example.myfitplan.data.database.User
 import com.example.myfitplan.data.database.UserDAO
 import kotlinx.coroutines.flow.Flow
@@ -24,7 +26,8 @@ class MyFitPlanRepositories(
     private val foodInsideMealDAO: FoodInsideMealDAO,
     private val exerciseDAO: ExerciseDAO,
     private val exerciseInsideDayDAO: ExerciseInsideDayDAO,
-    val fastingSessionDAO: FastingSessionDAO // <-- aggiungi il DAO del digiuno!
+    private val routeDAO: RouteDAO,
+    val fastingSessionDAO: FastingSessionDAO,// <-- aggiungi il DAO del digiuno!
 ) {
 
     /* Users */
@@ -79,4 +82,12 @@ class MyFitPlanRepositories(
         }
         fastingSessionDAO.insertSession(session)
     }
+
+    suspend fun saveRoute(route: Route, points: List<RoutePoint>): Long {
+        val id = routeDAO.insertRoute(route)
+        routeDAO.insertPoints(points.mapIndexed { i, p -> p.copy(routeId = id, seq = i) })
+        return id
+    }
+    fun getRoutes(email: String) = routeDAO.getRoutes(email)
+    suspend fun getRoutePoints(routeId: Long) = routeDAO.getRoutePoints(routeId)
 }
