@@ -50,12 +50,12 @@ val appModule = module {
     single { get<MyFitPlanDatabase>().foodInsideMealDAO() }
     single { get<MyFitPlanDatabase>().exerciseDAO() }
     single { get<MyFitPlanDatabase>().exerciseInsideDayDAO() }
-    single { get<MyFitPlanDatabase>().routeDAO() }              // <-- RouteDAO
-    single { get<MyFitPlanDatabase>().fastingSessionDAO() }     // <-- poi Fasting
+    single { get<MyFitPlanDatabase>().routeDAO() }
+    single { get<MyFitPlanDatabase>().fastingSessionDAO() }
     single { get<MyFitPlanDatabase>().badgeDAO() }
     single { get<MyFitPlanDatabase>().badgeUserDAO() }
 
-    // Repository (ordine coerente con il costruttore)
+    // Repository
     single {
         MyFitPlanRepositories(
             get(), // UserDAO
@@ -70,7 +70,7 @@ val appModule = module {
 
     // ViewModels
     viewModel { ThemeViewModel(get()) }
-    viewModel { LoginViewModel(get(), get()) }
+    viewModel { LoginViewModel(get(), get(), get(), get()) } // <- tolto Application
     viewModel { SignUpViewModel(get(), get()) }
     viewModel { HomeViewModel(get(), get()) }
     viewModel { ProfileViewModel(get(), get()) }
@@ -78,7 +78,9 @@ val appModule = module {
     viewModel { SettingsViewModel(get(), get(), get()) }
     viewModel { (userEmail: String) -> ExerciseViewModel(get(), userEmail) }
     viewModel { FoodViewModel(get()) }
-    viewModel { (userEmail: String) -> BadgeViewModel(get(), get(), userEmail) }
+    viewModel { (userEmail: String) ->
+        BadgeViewModel(get(), get(), userEmail)
+    }
 
     // Timer + Tracker
     single { TimerViewModel(get(), get(), get()) }

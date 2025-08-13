@@ -1,33 +1,38 @@
 package com.example.myfitplan.ui.screens.badge
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.EmojiEvents
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.myfitplan.R
-import com.example.myfitplan.data.database.BadgeWithUserData
 import com.example.myfitplan.ui.MyFitPlanRoute
 import com.example.myfitplan.ui.composables.NavBar
 import com.example.myfitplan.ui.composables.NavBarItem
-import com.example.myfitplan.ui.composables.TopBar
 import com.example.myfitplan.ui.composables.TopBarBadge
 
 @Composable
-fun BadgeScreen(badgeViewModel: BadgeViewModel, navController: NavController) {
-
-    val userBadges = badgeViewModel.userBadges.collectAsState().value
+fun BadgeScreen(
+    badgeViewModel: BadgeViewModel,
+    navController: NavController
+) {
     val colors = MaterialTheme.colorScheme
-
     var selectedTab by remember { mutableStateOf(NavBarItem.Home) }
+
+    val firstBadge by badgeViewModel.firstBadge.collectAsState()
+    val earnedFirst by badgeViewModel.earnedFirst.collectAsState()
+
+    var showHowTo by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -44,99 +49,133 @@ fun BadgeScreen(badgeViewModel: BadgeViewModel, navController: NavController) {
             )
         }
     ) { padding ->
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
                 .background(colors.background)
-                .padding(horizontal = 20.dp)
-                .verticalScroll(rememberScrollState()),
+                .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
-            Spacer(modifier = Modifier.height(10.dp))
-
+            Spacer(Modifier.height(10.dp))
             Text(
-                text = "Your Badges",
-                style = MaterialTheme.typography.headlineMedium,
+                "Badge e Grafici",
+                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
                 color = colors.primary
             )
+            Spacer(Modifier.height(14.dp))
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            if (userBadges.isEmpty()) {
-                Text(
-                    text = "Nessun Badge sbloccato",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = colors.secondary
+            if (earnedFirst != null) {
+                EarnedCard(
+                    title = earnedFirst!!.badge.title,
+                    description = earnedFirst!!.badge.description,
+                    date = earnedFirst!!.badgeUser.dataAchieved,
+                    onClick = { showHowTo = true }
                 )
             } else {
-                userBadges.forEach { badgeWithUserData ->
-                    BadgeCard(badgeWithUserData)
-                }
+                LockedCard(
+                    title = firstBadge.title,
+                    description = firstBadge.description,
+                    onClick = { showHowTo = true }
+                )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            if (showHowTo) {
+                AlertDialog(
+                    onDismissRequest = { showHowTo = false },
+                    title = { Text("Come si ottiene") },
+                    text = { Text("Sblocchi “${firstBadge.title}” effettuando il tuo primo login dopo la registrazione.") },
+                    confirmButton = {
+                        TextButton(onClick = { showHowTo = false }) { Text("Ok") }
+                    }
+                )
+            }
         }
     }
 }
 
-
-
 @Composable
-fun BadgeCard(badgeWithUserData: BadgeWithUserData) {
+private fun EarnedCard(
+    title: String,
+    description: String,
+    date: String,
+    onClick: () -> Unit
+) {
     val colors = MaterialTheme.colorScheme
-    val badge = badgeWithUserData.badge
-
-    Card(
+    ElevatedCard(
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.elevatedCardColors(containerColor = colors.surface),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        shape = CardDefaults.shape,
-        colors = CardDefaults.cardColors(containerColor = colors.surface),
-        elevation = CardDefaults.cardElevation(4.dp)
+            .heightIn(min = 170.dp)
+            .clickable { onClick() }
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(
-                painter = painterResource(id = getImageResource(badge.icon)),
-                contentDescription = badge.title,
-                modifier = Modifier.size(64.dp),
-                contentScale = ContentScale.Fit
-            )
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = badge.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = colors.onSurface
-                )
-                Text(
-                    text = badge.description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = colors.onSurfaceVariant
-                )
-                Text(
-                    text = "Ottenuto il: ${badgeWithUserData.badgeUser.dataAchieved}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = colors.onSurfaceVariant
+            Box(
+                modifier = Modifier
+                    .size(72.dp)
+                    .clip(CircleShape)
+                    .background(colors.primaryContainer),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.EmojiEvents,
+                    contentDescription = title,
+                    tint = colors.onPrimaryContainer,
+                    modifier = Modifier.size(36.dp)
                 )
             }
+            Spacer(Modifier.height(10.dp))
+            Text(title, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(description, style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant, maxLines = 2)
+            Spacer(Modifier.height(8.dp))
         }
     }
 }
 
-fun getImageResource(iconName: String): Int {
-    return when (iconName) {
-        "badge_star" -> R.drawable.badge_star
-        "badge_cup" -> R.drawable.badge_cup
-        else -> R.drawable.ic_default_badge
+@Composable
+private fun LockedCard(
+    title: String,
+    description: String,
+    onClick: () -> Unit
+) {
+    val colors = MaterialTheme.colorScheme
+    ElevatedCard(
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.elevatedCardColors(containerColor = colors.surfaceVariant),
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 170.dp)
+            .clickable { onClick() }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(72.dp)
+                    .clip(CircleShape)
+                    .background(colors.surface),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.EmojiEvents,
+                    contentDescription = title,
+                    tint = colors.onSurfaceVariant,
+                    modifier = Modifier.size(36.dp)
+                )
+            }
+            Spacer(Modifier.height(10.dp))
+            Text(title, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(description, style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant, maxLines = 2)
+        }
     }
 }

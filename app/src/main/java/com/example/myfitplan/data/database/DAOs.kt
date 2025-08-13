@@ -107,6 +107,12 @@ interface BadgeDAO{
 
     @Query("SELECT * FROM Badge WHERE id= :id")
     suspend fun getBadgeId(id: Int): Badge
+
+    @Query("SELECT * FROM Badge WHERE title = :title LIMIT 1")
+    suspend fun getByTitle(title: String): Badge?
+
+    @Query("SELECT MAX(id) FROM Badge")
+    suspend fun getMaxBadgeId(): Int?
 }
 
 
@@ -134,7 +140,8 @@ interface BadgeUserDAO{
     @Query("DELETE FROM BadgeUser WHERE email = :email AND badgeId = :badgeId")
     suspend fun deleteuserBadge(email: String, badgeId: Int)
 
-
+    @Query("SELECT EXISTS(SELECT 1 FROM BadgeUser WHERE email = :email AND badgeId = :badgeId)")
+    suspend fun userHasBadge(email: String, badgeId: Int): Int
 }
 
 @Dao
