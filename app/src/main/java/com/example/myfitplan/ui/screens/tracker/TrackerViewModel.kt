@@ -8,6 +8,10 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.myfitplan.data.database.Badge
+import com.example.myfitplan.data.database.BadgeDAO
+import com.example.myfitplan.data.database.BadgeUser
+import com.example.myfitplan.data.database.BadgeUserDAO
 import com.example.myfitplan.data.repositories.DatastoreRepository
 import com.example.myfitplan.data.repositories.MyFitPlanRepositories
 import com.google.android.gms.location.*
@@ -17,9 +21,10 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.json.JSONArray
 import org.json.JSONObject
 import java.net.URL
+import java.text.SimpleDateFormat
+import java.util.Locale
 import kotlin.math.*
 
 data class TrackerUiState(
@@ -44,7 +49,9 @@ data class TrackerUiState(
 class TrackerViewModel(
     app: Application,
     private val repos: MyFitPlanRepositories,
-    private val ds: DatastoreRepository
+    private val ds: DatastoreRepository,
+    private val badgeDao: BadgeDAO,
+    private val badgeUserDao: BadgeUserDAO
 ) : AndroidViewModel(app) {
 
     private val appCtx = app.applicationContext
@@ -54,6 +61,7 @@ class TrackerViewModel(
     val state: StateFlow<TrackerUiState> = _state.asStateFlow()
 
     private var updatesActive = false
+    private var tenKmAwardTriggered = false // evita chiamate ripetute mentre sei a fine percorso
 
     init { primeLastKnown() }
 
@@ -73,7 +81,15 @@ class TrackerViewModel(
 
     fun setDestination(lat: Double, lng: Double) {
         val dest = Location("dest").apply { latitude = lat; longitude = lng; time = System.currentTimeMillis() }
-        _state.update { it.copy(destination = dest, routingError = null) }
+        _state.update {
+            it.copy(
+                destination = dest,
+                routingError = null,
+                // reset trigger badge quando imposti una nuova destinazione
+                lastProgressMeters = 0.0
+            )
+        }
+        tenKmAwardTriggered = false
     }
 
     fun clearRouting() {
@@ -88,6 +104,7 @@ class TrackerViewModel(
                 lastProgressMeters = 0.0
             )
         }
+        tenKmAwardTriggered = false
         updatesActive = false
     }
 
@@ -146,7 +163,8 @@ class TrackerViewModel(
         val total = s.totalDistanceMeters
         val remaining = (total - monotoneMeters).coerceAtLeast(0.0)
 
-        val avgSpeed = (s.totalDurationSeconds / s.totalDistanceMeters).coerceAtLeast(1.0 / 3.0)
+        // stima durata rimanente: proporzionale alla media OSRM
+        val avgSpeed = (s.totalDurationSeconds / s.totalDistanceMeters).coerceAtLeast(1.0 / 3.0) // clamp
         val remSeconds = remaining * avgSpeed
 
         _state.update {
@@ -159,9 +177,16 @@ class TrackerViewModel(
             )
         }
 
+        // Ricalcolo se fuori rotta
         val offRoute = current.distanceTo(snapped) > 35f
         if (offRoute && !s.isRouting && s.destination != null) {
             viewModelScope.launch { fetchRoute(snapped, s.destination) }
+        }
+
+        // --- Badge "10 km": assegna quando percorso completato e total >= 10_000 m
+        if (!tenKmAwardTriggered && remaining <= 15.0 && total >= 10_000.0) {
+            tenKmAwardTriggered = true
+            viewModelScope.launch { awardTenKmBadgeIfNeeded() }
         }
     }
 
@@ -203,6 +228,7 @@ class TrackerViewModel(
                     etaSeconds = totalDur
                 )
             }
+            tenKmAwardTriggered = false
             true
         } catch (e: Exception) {
             _state.update { it.copy(isRouting = false, routingError = "Impossibile calcolare il percorso: ${e.message}") }
@@ -282,6 +308,27 @@ class TrackerViewModel(
             .addOnSuccessListener { cont.resume(it, null) }
             .addOnFailureListener { cont.resume(null, null) }
         cont.invokeOnCancellation { cts.cancel() }
+    }
+
+    // ------- Assegnazione badge "10 km"
+    private suspend fun awardTenKmBadgeIfNeeded() {
+        val title = "10 km"
+        val desc = "Completa un percorso di almeno 10 km per la prima volta."
+        val icon = "route"
+
+        val badge = badgeDao.getByTitle(title) ?: run {
+            val newId = (badgeDao.getMaxBadgeId() ?: 0) + 1
+            val created = Badge(id = newId, title = title, description = desc, icon = icon)
+            badgeDao.upsert(created)
+            created
+        }
+
+        val email = ds.user.first()?.email ?: return
+        val already = badgeUserDao.userHasBadge(email, badge.id) == 1
+        if (!already) {
+            val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(java.util.Date())
+            badgeUserDao.upsert(BadgeUser(email = email, badgeId = badge.id, dataAchieved = date))
+        }
     }
 }
 

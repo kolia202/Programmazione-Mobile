@@ -70,7 +70,7 @@ val appModule = module {
 
     // ViewModels
     viewModel { ThemeViewModel(get()) }
-    viewModel { LoginViewModel(get(), get(), get(), get()) } // <- tolto Application
+    viewModel { LoginViewModel(get(), get(), get(), get()) }
     viewModel { SignUpViewModel(get(), get()) }
     viewModel { HomeViewModel(get(), get()) }
     viewModel { ProfileViewModel(get(), get()) }
@@ -79,10 +79,31 @@ val appModule = module {
     viewModel { (userEmail: String) -> ExerciseViewModel(get(), userEmail) }
     viewModel { FoodViewModel(get()) }
     viewModel { (userEmail: String) ->
-        BadgeViewModel(get(), get(), userEmail)
+        BadgeViewModel(
+            badgeDao = get(),
+            badgeUserDao = get(),
+            repo = get(),
+            userEmail = userEmail
+        )
     }
 
-    // Timer + Tracker
-    single { TimerViewModel(get(), get(), get()) }
-    viewModel { TrackerViewModel(get(), get(), get()) }
+   viewModel {
+        TimerViewModel(
+            repo = get(),
+            datastore = get(),
+            badgeDao = get(),
+            badgeUserDao = get(),
+            app = get()
+        )
+    }
+
+    viewModel {
+        TrackerViewModel(
+            app = get(),
+            repos = get(),
+            ds = get(),
+            badgeDao = get(),
+            badgeUserDao = get()
+        )
+    }
 }

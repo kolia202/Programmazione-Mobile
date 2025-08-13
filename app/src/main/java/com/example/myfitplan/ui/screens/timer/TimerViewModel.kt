@@ -12,6 +12,10 @@ import androidx.core.app.NotificationCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myfitplan.R
+import com.example.myfitplan.data.database.Badge
+import com.example.myfitplan.data.database.BadgeDAO
+import com.example.myfitplan.data.database.BadgeUser
+import com.example.myfitplan.data.database.BadgeUserDAO
 import com.example.myfitplan.data.database.Exercise
 import com.example.myfitplan.data.database.FastingSession
 import com.example.myfitplan.data.repositories.DatastoreRepository
@@ -19,7 +23,10 @@ import com.example.myfitplan.data.repositories.MyFitPlanRepositories
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 data class TimerUiState(
     val isRunning: Boolean = false,
@@ -32,6 +39,8 @@ data class TimerUiState(
 class TimerViewModel(
     private val repo: MyFitPlanRepositories,
     private val datastore: DatastoreRepository,
+    private val badgeDao: BadgeDAO,
+    private val badgeUserDao: BadgeUserDAO,
     app: Application
 ) : AndroidViewModel(app) {
 
@@ -40,6 +49,8 @@ class TimerViewModel(
 
     private var startTime: Long = 0L
     private var timerJobLaunched = false
+
+    var selectedExercises by mutableStateOf<List<Exercise>>(emptyList())
 
     init {
         viewModelScope.launch {
@@ -101,6 +112,7 @@ class TimerViewModel(
         viewModelScope.launch {
             repo.saveFastingSessionFifo(session)
             loadHistory()
+            awardFirstWorkoutBadgeIfNeeded()
         }
         _uiState.value = _uiState.value.copy(
             isRunning = false,
@@ -133,8 +145,8 @@ class TimerViewModel(
             manager.createNotificationChannel(channel)
         }
         val notification = NotificationCompat.Builder(context, channelId)
-            .setContentTitle("Workout completed!")
-            .setContentText("Congratulations, you have finished your workout timer.")
+            .setContentTitle("Workout completato!")
+            .setContentText("Complimenti, hai finito il timer del workout.")
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .build()
         manager.notify(2222, notification)
@@ -171,15 +183,46 @@ class TimerViewModel(
         }
     }
 
-    var selectedExercises by mutableStateOf<List<Exercise>>(emptyList())
-
     fun addExerciseToPlan(ex: Exercise) {
         selectedExercises = selectedExercises + ex
     }
+
     fun removeExerciseFromPlan(ex: Exercise) {
         selectedExercises = selectedExercises - ex
     }
+
     fun clearPlan() {
         selectedExercises = emptyList()
+    }
+
+    // --- Nuova logica per assegnare il badge "Primo Workout"
+    private suspend fun awardFirstWorkoutBadgeIfNeeded() {
+        val title = "Primo Workout"
+
+        // Creo il badge se non esiste
+        val existing = badgeDao.getByTitle(title) ?: run {
+            val newId = (badgeDao.getMaxBadgeId() ?: 0) + 1
+            val badge = Badge(
+                id = newId,
+                title = title,
+                description = "Hai completato il tuo primo workout!",
+                icon = "dumbbell"
+            )
+            badgeDao.upsert(badge)
+            badge
+        }
+
+        val email = datastore.user.first()?.email ?: return
+        val hasIt = badgeUserDao.userHasBadge(email, existing.id) == 1
+        if (!hasIt) {
+            val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(java.util.Date())
+            badgeUserDao.upsert(
+                BadgeUser(
+                    email = email,
+                    badgeId = existing.id,
+                    dataAchieved = date
+                )
+            )
+        }
     }
 }
