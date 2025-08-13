@@ -27,23 +27,29 @@ class ExerciseViewModel(
 
     init {
         viewModelScope.launch {
-            if (repo.exercises.first().isEmpty()) {
+            val myFlow = repo.getExercisesForUser(userEmail)
+
+            val mineFirst = myFlow.first()
+            if (mineFirst.isEmpty()) {
                 seedDefaultExercises(repo, userEmail)
             }
-            repo.exercises.collect { exercises ->
-                updateState(exercises)
+
+            myFlow.collect { mine ->
+                updateState(mine)
             }
         }
     }
 
-    private fun updateState(all: List<Exercise>) {
-        val fav = all.filter { it.isFavorite && it.email == userEmail }
-        val filtered = filterAndSearch(all)
-        _uiState.update { it.copy(
-            allExercises = all,
-            favorites = fav,
-            filteredExercises = filtered
-        )}
+    private fun updateState(mine: List<Exercise>) {
+        val fav = mine.filter { it.isFavorite }
+        val filtered = filterAndSearch(mine)
+        _uiState.update {
+            it.copy(
+                allExercises = mine,
+                favorites = fav,
+                filteredExercises = filtered
+            )
+        }
     }
 
     fun selectCategory(category: String) {
@@ -56,13 +62,14 @@ class ExerciseViewModel(
         updateState(_uiState.value.allExercises)
     }
 
-    private fun filterAndSearch(all: List<Exercise>): List<Exercise> {
+    private fun filterAndSearch(source: List<Exercise>): List<Exercise> {
         val cat = _uiState.value.selectedCategory
         val query = _uiState.value.searchQuery.trim().lowercase()
-        return all.filter {
-            it.email == userEmail &&
-                    (cat == "All" || it.category == cat) &&
-                    (query.isBlank() || it.name.lowercase().contains(query) || it.description.lowercase().contains(query))
+        return source.filter {
+            (cat == "All" || it.category == cat) &&
+                    (query.isBlank() ||
+                            it.name.lowercase().contains(query) ||
+                            it.description.lowercase().contains(query))
         }
     }
 

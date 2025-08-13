@@ -27,54 +27,91 @@ class MyFitPlanRepositories(
     private val exerciseDAO: ExerciseDAO,
     private val exerciseInsideDayDAO: ExerciseInsideDayDAO,
     private val routeDAO: RouteDAO,
-    val fastingSessionDAO: FastingSessionDAO,// <-- aggiungi il DAO del digiuno!
+    val fastingSessionDAO: FastingSessionDAO,
 ) {
 
-    /* Users */
+    /* ========================= Users ========================= */
     val users: Flow<List<User>> = userDAO.getAllUsers()
     suspend fun insertUser(user: User) = userDAO.insert(user)
     suspend fun updateUser(user: User) = userDAO.upsert(user)
     suspend fun login(email: String, password: String) = userDAO.login(email, password)
-    suspend fun setProfilePicUrl(email: String, pictureUrl: String) = userDAO.setProfilePicUrl(email, pictureUrl)
+    suspend fun setProfilePicUrl(email: String, pictureUrl: String) =
+        userDAO.setProfilePicUrl(email, pictureUrl)
 
-    /* Food */
+    /* ========================= Food ========================== */
     val foods: Flow<List<Food>> = foodDAO.getAllFoods()
     suspend fun upsertFood(food: Food) = foodDAO.upsert(food)
     suspend fun getFood(name: String, email: String): Food = foodDAO.getFood(name, email)
     suspend fun deleteFood(name: String, email: String) {
         foodDAO.deleteFood(name, email)
+        // pulizia coerente: rimuovi anche dagli eventuali pasti di quell'utente
         foodInsideMealDAO.removeFoodInsideAllMeals(name, email)
     }
 
-    /* FoodInsideMeal */
-    val foodInsideAllMeals: Flow<List<FoodInsideMealWithFood>> = foodInsideMealDAO.getFoodInsideAllMeals()
-    fun getFoodsInsideMeal(date: String, mealType: MealType, email: String): Flow<List<FoodInsideMealWithFood>> =
-        foodInsideMealDAO.getFoodInsideMeal(date, mealType, email)
-    suspend fun upsertFoodInsideMeal(item: FoodInsideMeal) = foodInsideMealDAO.upsert(item)
-    suspend fun deleteFoodInsideMeal(date: String, mealType: MealType, foodName: String, email: String) =
-        foodInsideMealDAO.removeFoodInsideMeal(date, mealType, foodName, email)
+    /* ===================== FoodInsideMeal ==================== */
+    val foodInsideAllMeals: Flow<List<FoodInsideMealWithFood>> =
+        foodInsideMealDAO.getFoodInsideAllMeals()
 
-    /* Exercises */
+    fun getFoodsInsideMeal(
+        date: String,
+        mealType: MealType,
+        email: String
+    ): Flow<List<FoodInsideMealWithFood>> =
+        foodInsideMealDAO.getFoodInsideMeal(date, mealType, email)
+
+    suspend fun upsertFoodInsideMeal(item: FoodInsideMeal) =
+        foodInsideMealDAO.upsert(item)
+
+    suspend fun deleteFoodInsideMeal(
+        date: String,
+        mealType: MealType,
+        foodName: String,
+        email: String
+    ) = foodInsideMealDAO.removeFoodInsideMeal(date, mealType, foodName, email)
+
+    /* ======================== Exercises ====================== */
+    // Flow globale (se servisse altrove)
     val exercises: Flow<List<Exercise>> = exerciseDAO.getAllExercises()
-    suspend fun upsertExercise(exercise: Exercise) = exerciseDAO.upsert(exercise)
-    suspend fun getExercise(name: String, email: String): Exercise = exerciseDAO.getExercise(name, email)
+
+    // Flow per-utente da usare nella UI/ViewModel
+    fun getExercisesForUser(email: String): Flow<List<Exercise>> =
+        exerciseDAO.getExercisesForUser(email)
+
+    suspend fun upsertExercise(exercise: Exercise) =
+        exerciseDAO.upsert(exercise)
+
+    suspend fun getExercise(name: String, email: String): Exercise =
+        exerciseDAO.getExercise(name, email)
+
     suspend fun deleteExercise(name: String, email: String) {
         exerciseDAO.deleteExercise(name, email)
+        // pulizia coerente: elimina anche i riferimenti nelle giornate dell'utente
         exerciseInsideDayDAO.removeExerciseInsideAllDays(name, email)
     }
 
-    /* ExerciseInsideDay */
+    /* ==================== ExerciseInsideDay ================== */
     val exercisesInsideAllDays: Flow<List<ExerciseInsideDayWithExercise>> =
         exerciseInsideDayDAO.getExercisesInsideAllDays()
+
     fun getExercisesInsideDay(date: String, email: String): Flow<List<ExerciseInsideDay>> =
         exerciseInsideDayDAO.getExercisesInsideDay(date, email)
-    suspend fun upsertExerciseInsideDay(item: ExerciseInsideDay) = exerciseInsideDayDAO.upsert(item)
+
+    suspend fun upsertExerciseInsideDay(item: ExerciseInsideDay) =
+        exerciseInsideDayDAO.upsert(item)
+
     suspend fun deleteExerciseInsideDay(item: ExerciseInsideDay) =
         exerciseInsideDayDAO.removeExerciseInsideDay(item.exerciseName, item.date, item.emailEID)
 
-    suspend fun saveFastingSession(session: FastingSession) = fastingSessionDAO.insertSession(session)
-    suspend fun getAllFastingSessions() = fastingSessionDAO.getAllSessions()
-    suspend fun clearFastingSessions() = fastingSessionDAO.deleteAllSessions()
+    /* ==================== Fasting Sessions =================== */
+    suspend fun saveFastingSession(session: FastingSession) =
+        fastingSessionDAO.insertSession(session)
+
+    suspend fun getAllFastingSessions() =
+        fastingSessionDAO.getAllSessions()
+
+    suspend fun clearFastingSessions() =
+        fastingSessionDAO.deleteAllSessions()
+
     suspend fun saveFastingSessionFifo(session: FastingSession) {
         val all = fastingSessionDAO.getAllSessions()
         if (all.size >= 5) {
@@ -83,11 +120,15 @@ class MyFitPlanRepositories(
         fastingSessionDAO.insertSession(session)
     }
 
+    /* ========================== Routes ======================= */
     suspend fun saveRoute(route: Route, points: List<RoutePoint>): Long {
         val id = routeDAO.insertRoute(route)
         routeDAO.insertPoints(points.mapIndexed { i, p -> p.copy(routeId = id, seq = i) })
         return id
     }
+
     fun getRoutes(email: String) = routeDAO.getRoutes(email)
-    suspend fun getRoutePoints(routeId: Long) = routeDAO.getRoutePoints(routeId)
+
+    suspend fun getRoutePoints(routeId: Long) =
+        routeDAO.getRoutePoints(routeId)
 }
