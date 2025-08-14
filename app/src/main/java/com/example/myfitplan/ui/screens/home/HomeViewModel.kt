@@ -1,11 +1,11 @@
 package com.example.myfitplan.ui.screens.home
 
+import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myfitplan.data.database.MealType
 import com.example.myfitplan.data.database.User
 import com.example.myfitplan.data.database.FoodInsideMealWithFood
-import com.example.myfitplan.data.database.StepCounter
 import com.example.myfitplan.data.repositories.MyFitPlanRepositories
 import com.example.myfitplan.data.repositories.DatastoreRepository
 import com.example.myfitplan.utilities.DateUtils
@@ -54,12 +54,6 @@ class HomeViewModel(
     val giornoX: StateFlow<Int> = _giornoX.asStateFlow()
 
     init {
-        viewModelScope.launch {
-            val startDateMillis = datastoreRepository.getOrSetStartDateMillis(today.time)
-            val diff = ((today.time - startDateMillis) / (1000 * 60 * 60 * 24)).toInt() + 1
-            _giornoX.value = diff
-        }
-        setDate(today)
         observeUser()
     }
 
@@ -67,7 +61,14 @@ class HomeViewModel(
         viewModelScope.launch {
             datastoreRepository.user.collect { user ->
                 _uiState.update { it.copy(user = user) }
-                user?.let { fetchMealsForAllTypes(_uiState.value.currentDate) }
+                if (user != null) {
+                    // Calcolo Day X solo dopo aver letto l'utente
+                    val startDateMillis = datastoreRepository.getOrSetStartDateMillis(today.time, user.email)
+                    val diff = ((today.time - startDateMillis) / (1000 * 60 * 60 * 24)).toInt() + 1
+                    _giornoX.value = diff
+
+                    fetchMealsForAllTypes(_uiState.value.currentDate)
+                }
             }
         }
     }
@@ -119,8 +120,8 @@ class HomeViewModel(
         )
     }
 
-
     fun stepsToKm(steps: Int): Float = (steps * 0.7f) / 1000f
+
     fun stepsToKcal(steps: Int, user: User?): Int {
         val weight = user?.weight ?: 70f
         return ((steps * weight * 0.0005f)).toInt()
@@ -134,7 +135,7 @@ class HomeViewModel(
     fun loadSummaryHistory() {
         viewModelScope.launch {
             val user = datastoreRepository.user.first() ?: return@launch
-            val startDateMillis = datastoreRepository.getOrSetStartDateMillis(DateUtils.getToday().time)
+            val startDateMillis = datastoreRepository.getOrSetStartDateMillis(DateUtils.getToday().time, user.email)
             val today = DateUtils.getToday()
             val calendar = Calendar.getInstance()
             calendar.timeInMillis = startDateMillis

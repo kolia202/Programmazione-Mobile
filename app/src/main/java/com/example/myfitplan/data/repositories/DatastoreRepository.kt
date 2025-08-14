@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 class DatastoreRepository(
-    private val dataStore: DataStore<Preferences>
+    val dataStore: DataStore<Preferences>
 ) {
     companion object {
         private val EMAIL_KEY = stringPreferencesKey("email")
@@ -40,6 +40,13 @@ class DatastoreRepository(
         private val B6_KEY = stringPreferencesKey("b6")
         private val SELECTED_DATE_MILLIS_KEY = stringPreferencesKey("selectedDateMillis")
         private val SHOW_TIMER_POPUP_KEY = stringPreferencesKey("show_timer_popup")
+
+        // 🔹 prefisso per chiave data di inizio per utente
+        private fun startDateKey(email: String) =
+            stringPreferencesKey("first_open_date_millis_$email")
+
+        // 🔹 chiave legacy globale (per migrazione)
+        private val LEGACY_START_DATE_KEY = stringPreferencesKey("first_open_date_millis")
     }
 
     val user: Flow<User?> = dataStore.data.map { prefs ->
@@ -103,15 +110,45 @@ class DatastoreRepository(
         prefs[B6_KEY] = user.b6.toString()
     }
 
+    // 🔹 Logout: rimuove solo dati utente, NON data di inizio
     suspend fun removeUser() = dataStore.edit { prefs ->
-        prefs.clear()
+        prefs.remove(EMAIL_KEY)
+        prefs.remove(PASSWORD_KEY)
+        prefs.remove(USERNAME_KEY)
+        prefs.remove(PICTURE_URL_KEY)
+        prefs.remove(HEIGHT_KEY)
+        prefs.remove(WEIGHT_KEY)
+        prefs.remove(GENDER_KEY)
+        prefs.remove(AGE_KEY)
+        prefs.remove(ACTIVITY_KEY)
+        prefs.remove(GOAL_KEY)
+        prefs.remove(BMR_KEY)
+        prefs.remove(DAILY_CALORIES_KEY)
+        prefs.remove(DIET_TYPE_KEY)
+        prefs.remove(B1_KEY)
+        prefs.remove(B2_KEY)
+        prefs.remove(B3_KEY)
+        prefs.remove(B4_KEY)
+        prefs.remove(B5_KEY)
+        prefs.remove(B6_KEY)
     }
 
-    suspend fun getOrSetStartDateMillis(todayMillis: Long): Long {
-        val key = stringPreferencesKey("first_open_date_millis")
+    // 🔹 Data di inizio per utente (migrazione dal legacy se esiste)
+    suspend fun getOrSetStartDateMillis(todayMillis: Long, email: String): Long {
+        val key = startDateKey(email)
         val prefs = dataStore.data.first()
         val current = prefs[key]
+
         if (current != null) return current.toLong()
+
+        // Migrazione: se esiste chiave legacy, usa quella
+        val legacy = prefs[LEGACY_START_DATE_KEY]
+        if (legacy != null) {
+            dataStore.edit { it[key] = legacy }
+            return legacy.toLong()
+        }
+
+        // Altrimenti, imposta la data odierna
         dataStore.edit { it[key] = todayMillis.toString() }
         return todayMillis
     }
