@@ -76,6 +76,7 @@ dependencies {
     implementation(libs.androidx.foundation.android)
     implementation(libs.androidx.room.runtime.android)
     implementation(libs.androidx.foundation.android)
+    implementation(libs.androidx.foundation.android)
     annotationProcessor(libs.androidx.room.compiler)
     implementation(libs.accompanist.systemuicontroller)
     implementation(libs.coil.compose)

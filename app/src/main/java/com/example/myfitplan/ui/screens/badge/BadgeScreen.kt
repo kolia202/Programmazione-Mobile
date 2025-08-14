@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
@@ -20,6 +21,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -30,6 +32,22 @@ import com.example.myfitplan.ui.MyFitPlanRoute
 import com.example.myfitplan.ui.composables.NavBar
 import com.example.myfitplan.ui.composables.NavBarItem
 import com.example.myfitplan.ui.composables.TopBarBadge
+import com.example.myfitplan.ui.screens.home.HomeViewModel
+import org.koin.androidx.compose.koinViewModel
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.border
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.platform.LocalDensity
+
 
 @Composable
 fun BadgeScreen(
@@ -127,6 +145,11 @@ fun BadgeScreen(
                         item = it,
                         onClick = { infoDialog = it }
                     )
+                }
+                item(span = { GridItemSpan(2) }) {
+                    Spacer(Modifier.height(12.dp))
+                    WeeklyCaloriesChartSection()
+                    Spacer(Modifier.height(96.dp)) //
                 }
             }
         }
@@ -254,3 +277,251 @@ private fun iconFor(badge: Badge) = when (badge.icon.lowercase()) {
     "route" -> Icons.Rounded.DirectionsRun
     else -> Icons.Rounded.EmojiEvents
 }
+
+@Composable
+private fun WeeklyCaloriesChartSection(
+    homeVM: HomeViewModel = koinViewModel()
+) {
+    // Carica lo storico fino a ieri (una volta)
+    LaunchedEffect(Unit) { homeVM.loadSummaryHistory() }
+
+    val colors = MaterialTheme.colorScheme
+    val history by homeVM.summaryHistory.collectAsState()
+    val uiState by homeVM.uiState.collectAsState()
+
+    // Target calcolato dal profilo (activity level + goal)
+    val kcalTarget = uiState.user?.dailyCalories ?: 2000
+
+    // Serie completa: giorni passati + oggi
+    val allDays = remember(history, uiState.summary, kcalTarget) {
+        val past = history.map {
+            DayKcal(
+                rawLabel = it.formattedDate,
+                target = kcalTarget,
+                eaten = it.summary.calories
+            )
+        }
+        val today = DayKcal(
+            rawLabel = homeVM.getSelectedDate(),
+            target = kcalTarget,
+            eaten = uiState.summary.calories,
+            isToday = true
+        )
+        past + today
+    }
+
+    // Ultimi 7 (cresce fino a 7, poi scorre)
+    val last7 = allDays.takeLast(minOf(7, allDays.size))
+    if (last7.isEmpty()) return
+
+    val startIndex = (allDays.size - last7.size) + 1
+    val labeled = remember(last7, startIndex) {
+        last7.mapIndexed { i, d -> d.copy(displayLabel = "D${startIndex + i}") }
+    }
+
+    Card(
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = colors.surface),
+        elevation = CardDefaults.cardElevation(8.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(Modifier.padding(16.dp)) {
+            Text(
+                "Andamento calorie (ultimi 7 giorni)",
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                color = colors.primary
+            )
+            Spacer(Modifier.height(6.dp))
+            Text(
+                text = "Giorni registrati: ${labeled.size}/7 • Target: $kcalTarget kcal",
+                style = MaterialTheme.typography.labelMedium,
+                color = colors.onSurfaceVariant
+            )
+            Spacer(Modifier.height(16.dp))
+
+            WeeklyCaloriesChart(
+                data = labeled,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(240.dp)
+            )
+        }
+    }
+}
+
+private data class DayKcal(
+    val rawLabel: String,
+    val target: Int,
+    val eaten: Int,
+    val isToday: Boolean = false,
+    val displayLabel: String = "" // D1..D7
+)
+
+@Composable
+private fun WeeklyCaloriesChart(
+    data: List<DayKcal>,
+    modifier: Modifier = Modifier
+) {
+    val colors = MaterialTheme.colorScheme
+    val maxY = remember(data) { data.maxOf { maxOf(it.target, it.eaten) }.coerceAtLeast(1) }
+    val step = remember(maxY) { niceStep(maxY) }
+
+    val density = LocalDensity.current
+    val yAxisWidthPx = with(density) { 40.dp.toPx() }   // spazio numeri asse Y
+    val labelPaddingPx = with(density) { 40.dp.toPx() } // spazio etichette sotto
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+    ) {
+        Canvas(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(240.dp)
+        ) {
+            val chartHeight = size.height - labelPaddingPx
+            val chartWidth = size.width - yAxisWidthPx
+            val barGroupWidth = chartWidth / data.size
+            val barWidth = barGroupWidth / 3
+
+            // === Asse Y + griglia ===
+            var yTick = 0
+            while (yTick <= maxY) {
+                val y = chartHeight - (yTick / maxY.toFloat()) * chartHeight
+                drawLine(
+                    color = colors.outlineVariant,
+                    start = Offset(yAxisWidthPx, y),
+                    end = Offset(size.width, y),
+                    strokeWidth = 1f
+                )
+                drawContext.canvas.nativeCanvas.apply {
+                    drawText(
+                        yTick.toString(),
+                        0f,
+                        y + 4f,
+                        android.graphics.Paint().apply {
+                            color = android.graphics.Color.GRAY
+                            textSize = 28f
+                        }
+                    )
+                }
+                yTick += step
+            }
+
+            // === Barre + valori ===
+            data.forEachIndexed { index, day ->
+                val xBase = yAxisWidthPx + index * barGroupWidth + barWidth / 2
+
+                // Assunte (blu)
+                val eatenHeight = (day.eaten / maxY.toFloat()) * chartHeight
+                drawRect(
+                    color = colors.primary,
+                    topLeft = Offset(xBase, chartHeight - eatenHeight),
+                    size = Size(barWidth, eatenHeight)
+                )
+                // Evidenzia oggi (bordo sulla barra blu)
+                if (day.isToday) {
+                    drawRect(
+                        color = colors.tertiary,
+                        topLeft = Offset(xBase, chartHeight - eatenHeight),
+                        size = Size(barWidth, eatenHeight),
+                        style = Stroke(width = 4f)
+                    )
+                }
+                // Valore sopra barra blu
+                drawContext.canvas.nativeCanvas.apply {
+                    drawText(
+                        day.eaten.toString(),
+                        xBase,
+                        chartHeight - eatenHeight - with(density) { 6.dp.toPx() },
+                        android.graphics.Paint().apply {
+                            color = android.graphics.Color.DKGRAY
+                            textSize = 26f
+                            textAlign = android.graphics.Paint.Align.LEFT
+                        }
+                    )
+                }
+
+                // Target (rosso)
+                val targetHeight = (day.target / maxY.toFloat()) * chartHeight
+                val xTarget = xBase + barWidth + with(density) { 4.dp.toPx() }
+                drawRect(
+                    color = Color.Red,
+                    topLeft = Offset(xTarget, chartHeight - targetHeight),
+                    size = Size(barWidth, targetHeight)
+                )
+                // Valore sopra barra rossa
+                drawContext.canvas.nativeCanvas.apply {
+                    drawText(
+                        day.target.toString(),
+                        xTarget,
+                        chartHeight - targetHeight - with(density) { 6.dp.toPx() },
+                        android.graphics.Paint().apply {
+                            color = android.graphics.Color.DKGRAY
+                            textSize = 26f
+                            textAlign = android.graphics.Paint.Align.LEFT
+                        }
+                    )
+                }
+            }
+        }
+
+        Spacer(Modifier.height(8.dp))
+
+        // Etichette giorni (D1..D7)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 40.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            data.forEach { day ->
+                Text(
+                    text = day.displayLabel + if (day.isToday) " (oggi)" else "",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = if (day.isToday) colors.tertiary else colors.onSurfaceVariant
+                )
+            }
+        }
+
+        Spacer(Modifier.height(16.dp))
+
+        // Legenda sotto (unica)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            LegendDot("Assunte", colors.primary, colors.onSurface)
+            Spacer(Modifier.width(24.dp))
+            LegendDot("Target", Color.Red, colors.onSurface)
+        }
+    }
+}
+
+private fun niceStep(max: Int): Int = when {
+    max <= 800 -> 100
+    max <= 1600 -> 200
+    max <= 2400 -> 300
+    max <= 3200 -> 400
+    else -> 500
+}
+
+@Composable
+private fun LegendDot(
+    text: String,
+    color: androidx.compose.ui.graphics.Color,
+    textColor: androidx.compose.ui.graphics.Color
+) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            modifier = Modifier
+                .size(14.dp)
+                .clip(CircleShape)
+                .background(color)
+        )
+        Spacer(Modifier.width(6.dp))
+        Text(text, style = MaterialTheme.typography.labelMedium, color = textColor)
+    }
+}
+
