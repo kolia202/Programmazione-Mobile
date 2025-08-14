@@ -47,7 +47,7 @@ class LoginViewModel(
             try {
                 val user: User = repo.login(email, password)
                 datastore.saveUser(user)
-                // assegna/crea badge "Primo Accesso" (senza alcuna notifica)
+
                 grantFirstAccessBadge(user.email)
                 _state.value = LoginState(success = true)
             } catch (e: Exception) {
@@ -57,7 +57,7 @@ class LoginViewModel(
     }
 
     private suspend fun grantFirstAccessBadge(email: String) = withContext(Dispatchers.IO) {
-        // 1) Cerca il badge per titolo; se non esiste, crealo (id = maxId+1)
+
         val existing = runCatching { badgeDao.getByTitle(FIRST_ACCESS_TITLE) }.getOrNull()
         val badge = existing ?: run {
             val newId = ((badgeDao.getMaxBadgeId() ?: 0) + 1)
@@ -71,7 +71,7 @@ class LoginViewModel(
             created
         }
 
-        // 2) Se l’utente non lo ha, assegnalo
+
         val hasIt = runCatching { badgeUserDao.userHasBadge(email, badge.id) }.getOrNull() == 1
         if (!hasIt) {
             badgeUserDao.upsert(

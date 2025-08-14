@@ -7,8 +7,6 @@ import com.example.myfitplan.data.database.FoodUnit
 import com.example.myfitplan.data.repositories.MyFitPlanRepositories
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-
-// HTTP + JSON
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*

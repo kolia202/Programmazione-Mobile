@@ -81,7 +81,6 @@ interface ExerciseDAO {
     @Query("SELECT * FROM Exercise")
     fun getAllExercises(): Flow<List<Exercise>>
 
-    // ➜ NUOVO: flow limitata all'utente corrente
     @Query("SELECT * FROM Exercise WHERE email = :email")
     fun getExercisesForUser(email: String): Flow<List<Exercise>>
 
@@ -143,11 +142,9 @@ interface BadgeDAO {
 
 @Dao
 interface BadgeUserDAO {
-    // seleziona id dei badge ottenuti dall'utente
     @Query("SELECT * FROM BadgeUser WHERE email = :email")
     fun getUserBadge(email: String): Flow<List<BadgeUser>>
 
-    // selezione informazioni Badge
     @Transaction
     @Query(
         "SELECT bu.email AS badgeUser_email, bu.badgeId AS badgeUser_badgeId, " +
@@ -158,11 +155,9 @@ interface BadgeUserDAO {
     )
     fun getUserBadgeWithInfo(email: String): Flow<List<BadgeWithUserData>>
 
-    // inserimento di un badge ottenuto
     @Upsert
     suspend fun upsert(badgeUser: BadgeUser)
 
-    // rimozione di un badge
     @Query("DELETE FROM BadgeUser WHERE email = :email AND badgeId = :badgeId")
     suspend fun deleteuserBadge(email: String, badgeId: Int)
 

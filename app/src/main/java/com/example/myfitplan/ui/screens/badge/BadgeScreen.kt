@@ -1,6 +1,5 @@
 package com.example.myfitplan.ui.screens.badge
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -35,16 +34,13 @@ import com.example.myfitplan.ui.composables.TopBarBadge
 import com.example.myfitplan.ui.screens.home.HomeViewModel
 import org.koin.androidx.compose.koinViewModel
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.border
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.platform.LocalDensity
 
@@ -57,7 +53,7 @@ fun BadgeScreen(
     val colors = MaterialTheme.colorScheme
     var selectedTab by remember { mutableStateOf(NavBarItem.Home) }
 
-    // --- Stato badge dal VM ---
+
     val firstBadge by badgeViewModel.firstBadge.collectAsState()
     val earnedFirst by badgeViewModel.earnedFirst.collectAsState()
 
@@ -70,7 +66,7 @@ fun BadgeScreen(
     val tenKmBadge by badgeViewModel.tenKmBadge.collectAsState()
     val earnedTenKm by badgeViewModel.earnedTenKm.collectAsState()
 
-    // Lista per la griglia (2 per riga)
+
     val items = listOf(
         BadgeGridItem(
             badge = firstBadge,
@@ -138,7 +134,7 @@ fun BadgeScreen(
                 state = gridState,
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(bottom = 96.dp) // spazio per la bottom bar
+                contentPadding = PaddingValues(bottom = 96.dp)
             ) {
                 items(items) { it ->
                     BadgeGridCard(
@@ -149,7 +145,7 @@ fun BadgeScreen(
                 item(span = { GridItemSpan(2) }) {
                     Spacer(Modifier.height(12.dp))
                     WeeklyCaloriesChartSection()
-                    Spacer(Modifier.height(96.dp)) //
+                    Spacer(Modifier.height(96.dp))
                 }
             }
         }
@@ -177,9 +173,8 @@ private fun BadgeGridCard(
     onClick: () -> Unit
 ) {
     val colors = MaterialTheme.colorScheme
-    val cardAspectRatio = 1.05f // stessa dimensione per ogni cella
+    val cardAspectRatio = 1.05f
 
-    // Colori distinti
     val containerColor =
         if (item.earned) colors.primaryContainer else colors.surfaceVariant
     val contentColor =
@@ -211,7 +206,7 @@ private fun BadgeGridCard(
                 .padding(14.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Cerchio icona
+
             Box(
                 modifier = Modifier
                     .size(60.dp)
@@ -243,7 +238,7 @@ private fun BadgeGridCard(
                 overflow = TextOverflow.Ellipsis
             )
 
-            Spacer(Modifier.weight(1f)) // allinea la sezione finale
+            Spacer(Modifier.weight(1f))
 
             if (item.earned && item.date != null) {
                 Text(
@@ -268,7 +263,7 @@ private fun InfoDialog(title: String, text: String, onDismiss: () -> Unit) {
     )
 }
 
-// Icône diverse in base al campo 'icon' del badge
+
 @Composable
 private fun iconFor(badge: Badge) = when (badge.icon.lowercase()) {
     "trophy" -> Icons.Rounded.EmojiEvents
@@ -282,17 +277,17 @@ private fun iconFor(badge: Badge) = when (badge.icon.lowercase()) {
 private fun WeeklyCaloriesChartSection(
     homeVM: HomeViewModel = koinViewModel()
 ) {
-    // Carica lo storico fino a ieri (una volta)
+
     LaunchedEffect(Unit) { homeVM.loadSummaryHistory() }
 
     val colors = MaterialTheme.colorScheme
     val history by homeVM.summaryHistory.collectAsState()
     val uiState by homeVM.uiState.collectAsState()
 
-    // Target calcolato dal profilo (activity level + goal)
+
     val kcalTarget = uiState.user?.dailyCalories ?: 2000
 
-    // Serie completa: giorni passati + oggi
+
     val allDays = remember(history, uiState.summary, kcalTarget) {
         val past = history.map {
             DayKcal(
@@ -310,7 +305,7 @@ private fun WeeklyCaloriesChartSection(
         past + today
     }
 
-    // Ultimi 7 (cresce fino a 7, poi scorre)
+
     val last7 = allDays.takeLast(minOf(7, allDays.size))
     if (last7.isEmpty()) return
 
@@ -354,7 +349,7 @@ private data class DayKcal(
     val target: Int,
     val eaten: Int,
     val isToday: Boolean = false,
-    val displayLabel: String = "" // D1..D7
+    val displayLabel: String = ""
 )
 
 @Composable
@@ -367,8 +362,8 @@ private fun WeeklyCaloriesChart(
     val step = remember(maxY) { niceStep(maxY) }
 
     val density = LocalDensity.current
-    val yAxisWidthPx = with(density) { 40.dp.toPx() }   // spazio numeri asse Y
-    val labelPaddingPx = with(density) { 40.dp.toPx() } // spazio etichette sotto
+    val yAxisWidthPx = with(density) { 40.dp.toPx() }
+    val labelPaddingPx = with(density) { 40.dp.toPx() }
 
     Column(
         modifier = modifier
@@ -385,7 +380,7 @@ private fun WeeklyCaloriesChart(
             val barGroupWidth = chartWidth / data.size
             val barWidth = barGroupWidth / 3
 
-            // === Asse Y + griglia ===
+
             var yTick = 0
             while (yTick <= maxY) {
                 val y = chartHeight - (yTick / maxY.toFloat()) * chartHeight
@@ -409,18 +404,18 @@ private fun WeeklyCaloriesChart(
                 yTick += step
             }
 
-            // === Barre + valori ===
+
             data.forEachIndexed { index, day ->
                 val xBase = yAxisWidthPx + index * barGroupWidth + barWidth / 2
 
-                // Assunte (blu)
+
                 val eatenHeight = (day.eaten / maxY.toFloat()) * chartHeight
                 drawRect(
                     color = colors.primary,
                     topLeft = Offset(xBase, chartHeight - eatenHeight),
                     size = Size(barWidth, eatenHeight)
                 )
-                // Evidenzia oggi (bordo sulla barra blu)
+
                 if (day.isToday) {
                     drawRect(
                         color = colors.tertiary,
@@ -429,7 +424,7 @@ private fun WeeklyCaloriesChart(
                         style = Stroke(width = 4f)
                     )
                 }
-                // Valore sopra barra blu
+
                 drawContext.canvas.nativeCanvas.apply {
                     drawText(
                         day.eaten.toString(),
@@ -443,7 +438,7 @@ private fun WeeklyCaloriesChart(
                     )
                 }
 
-                // Target (rosso)
+
                 val targetHeight = (day.target / maxY.toFloat()) * chartHeight
                 val xTarget = xBase + barWidth + with(density) { 4.dp.toPx() }
                 drawRect(
@@ -451,7 +446,7 @@ private fun WeeklyCaloriesChart(
                     topLeft = Offset(xTarget, chartHeight - targetHeight),
                     size = Size(barWidth, targetHeight)
                 )
-                // Valore sopra barra rossa
+
                 drawContext.canvas.nativeCanvas.apply {
                     drawText(
                         day.target.toString(),
@@ -469,7 +464,7 @@ private fun WeeklyCaloriesChart(
 
         Spacer(Modifier.height(8.dp))
 
-        // Etichette giorni (D1..D7)
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -487,7 +482,7 @@ private fun WeeklyCaloriesChart(
 
         Spacer(Modifier.height(16.dp))
 
-        // Legenda sotto (unica)
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center

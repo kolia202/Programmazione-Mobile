@@ -40,7 +40,7 @@ class BadgeViewModel(
         observeFoodsForMealBadge()
     }
 
-    // ===== Flussi base =====
+
     val allBadges: StateFlow<List<Badge>> =
         badgeDao.getAllBadges().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
@@ -48,7 +48,7 @@ class BadgeViewModel(
         badgeUserDao.getUserBadgeWithInfo(userEmail)
             .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
-    // ===== Primo Accesso =====
+
     val firstBadge: StateFlow<Badge> =
         allBadges.map { list ->
             list.find { it.title.equals(FIRST_TITLE, true) }
@@ -61,7 +61,7 @@ class BadgeViewModel(
         userBadges.map { list -> list.find { it.badge.title.equals(FIRST_TITLE, true) } }
             .stateIn(viewModelScope, SharingStarted.Lazily, null)
 
-    // ===== Tutti i pasti =====
+
     val mealBadge: StateFlow<Badge> =
         allBadges.map { list ->
             list.find { it.title.equals(MEAL_TITLE, true) }
@@ -74,7 +74,7 @@ class BadgeViewModel(
         userBadges.map { list -> list.find { it.badge.title.equals(MEAL_TITLE, true) } }
             .stateIn(viewModelScope, SharingStarted.Lazily, null)
 
-    // ===== Primo Workout =====
+
     val workoutBadge: StateFlow<Badge> =
         allBadges.map { list ->
             list.find { it.title.equals(WORKOUT_TITLE, true) }
@@ -87,7 +87,7 @@ class BadgeViewModel(
         userBadges.map { list -> list.find { it.badge.title.equals(WORKOUT_TITLE, true) } }
             .stateIn(viewModelScope, SharingStarted.Lazily, null)
 
-    // ===== 10 km =====
+
     val tenKmBadge: StateFlow<Badge> =
         allBadges.map { list ->
             list.find { it.title.equals(TENKM_TITLE, true) }
@@ -100,7 +100,7 @@ class BadgeViewModel(
         userBadges.map { list -> list.find { it.badge.title.equals(TENKM_TITLE, true) } }
             .stateIn(viewModelScope, SharingStarted.Lazily, null)
 
-    // ===== Helpers =====
+
     fun addBadge(badgeId: Int, date: String) {
         viewModelScope.launch {
             badgeUserDao.upsert(BadgeUser(email = userEmail, badgeId = badgeId, dataAchieved = date))

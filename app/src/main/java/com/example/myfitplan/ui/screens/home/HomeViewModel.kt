@@ -1,6 +1,5 @@
 package com.example.myfitplan.ui.screens.home
 
-import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myfitplan.data.database.MealType
@@ -62,7 +61,6 @@ class HomeViewModel(
             datastoreRepository.user.collect { user ->
                 _uiState.update { it.copy(user = user) }
                 if (user != null) {
-                    // Calcolo Day X solo dopo aver letto l'utente
                     val startDateMillis = datastoreRepository.getOrSetStartDateMillis(today.time, user.email)
                     val diff = ((today.time - startDateMillis) / (1000 * 60 * 60 * 24)).toInt() + 1
                     _giornoX.value = diff

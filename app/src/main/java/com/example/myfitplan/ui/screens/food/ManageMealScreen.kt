@@ -1,6 +1,5 @@
 package com.example.myfitplan.ui.screens.food
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -72,7 +71,7 @@ fun ManageMealScreen(
                             Text("${fimw.food.kcalPerc * fimw.foodInsideMeal.quantity} kcal")
                         }
                         IconButton(onClick = {
-                            // Rimuovi alimento dal pasto
+
                             viewModel.viewModelScope.launch {
                                 viewModel.repositories.deleteFoodInsideMeal(
                                     date,

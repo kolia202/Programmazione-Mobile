@@ -61,7 +61,7 @@ class TrackerViewModel(
     val state: StateFlow<TrackerUiState> = _state.asStateFlow()
 
     private var updatesActive = false
-    private var tenKmAwardTriggered = false // evita chiamate ripetute mentre sei a fine percorso
+    private var tenKmAwardTriggered = false
 
     init { primeLastKnown() }
 
@@ -85,7 +85,7 @@ class TrackerViewModel(
             it.copy(
                 destination = dest,
                 routingError = null,
-                // reset trigger badge quando imposti una nuova destinazione
+
                 lastProgressMeters = 0.0
             )
         }
@@ -163,7 +163,7 @@ class TrackerViewModel(
         val total = s.totalDistanceMeters
         val remaining = (total - monotoneMeters).coerceAtLeast(0.0)
 
-        // stima durata rimanente: proporzionale alla media OSRM
+
         val avgSpeed = (s.totalDurationSeconds / s.totalDistanceMeters).coerceAtLeast(1.0 / 3.0) // clamp
         val remSeconds = remaining * avgSpeed
 
@@ -177,13 +177,13 @@ class TrackerViewModel(
             )
         }
 
-        // Ricalcolo se fuori rotta
+
         val offRoute = current.distanceTo(snapped) > 35f
         if (offRoute && !s.isRouting && s.destination != null) {
             viewModelScope.launch { fetchRoute(snapped, s.destination) }
         }
 
-        // --- Badge "10 km": assegna quando percorso completato e total >= 10_000 m
+
         if (!tenKmAwardTriggered && remaining <= 15.0 && total >= 10_000.0) {
             tenKmAwardTriggered = true
             viewModelScope.launch { awardTenKmBadgeIfNeeded() }
@@ -310,7 +310,7 @@ class TrackerViewModel(
         cont.invokeOnCancellation { cts.cancel() }
     }
 
-    // ------- Assegnazione badge "10 km"
+
     private suspend fun awardTenKmBadgeIfNeeded() {
         val title = "10 km"
         val desc = "Completa un percorso di almeno 10 km per la prima volta."

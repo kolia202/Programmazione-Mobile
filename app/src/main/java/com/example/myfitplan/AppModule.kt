@@ -28,7 +28,7 @@ import org.koin.dsl.module
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore("theme")
 
 val appModule = module {
-    // Room
+
     single {
         Room.databaseBuilder(
             get(),
@@ -39,12 +39,12 @@ val appModule = module {
             .build()
     }
 
-    // DataStore & repo base
+
     single { androidContext().dataStore }
     single { ThemeRepository(get()) }
     single { DatastoreRepository(get()) }
 
-    // DAOs
+
     single { get<MyFitPlanDatabase>().userDAO() }
     single { get<MyFitPlanDatabase>().foodDAO() }
     single { get<MyFitPlanDatabase>().foodInsideMealDAO() }
@@ -55,20 +55,20 @@ val appModule = module {
     single { get<MyFitPlanDatabase>().badgeDAO() }
     single { get<MyFitPlanDatabase>().badgeUserDAO() }
 
-    // Repository
+
     single {
         MyFitPlanRepositories(
-            get(), // UserDAO
-            get(), // FoodDAO
-            get(), // FoodInsideMealDAO
-            get(), // ExerciseDAO
-            get(), // ExerciseInsideDayDAO
-            get(), // RouteDAO
-            get()  // FastingSessionDAO
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get()
         )
     }
 
-    // ViewModels
+
     viewModel { ThemeViewModel(get()) }
     viewModel { LoginViewModel(get(), get(), get(), get()) }
     viewModel { SignUpViewModel(get(), get()) }

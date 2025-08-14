@@ -48,7 +48,7 @@ fun TrackerScreen(
     var selectedTab by remember { mutableStateOf(NavBarItem.Esercizi) }
     val isDark = isSystemInDarkTheme()
 
-    val bottomPanelHeight = 140.dp // un filo più alto per mostrare stats
+    val bottomPanelHeight = 140.dp
 
     Scaffold(
         topBar = {
@@ -104,7 +104,6 @@ fun TrackerScreen(
 
                         val myLoc = MyLocationNewOverlay(GpsMyLocationProvider(ctx), this).apply {
                             enableMyLocation()
-                            // NB: il follow reale lo gestiamo noi con s.followMode
                             disableFollowLocation()
                         }
                         overlays.add(myLoc)
@@ -144,7 +143,6 @@ fun TrackerScreen(
                     routeShadow.setPoints(pts)
                     routePrimary.setPoints(pts)
 
-                    // marker: me (snappato se disponibile)
                     val meMarker = map.overlays.filterIsInstance<Marker>().find { it.title == "Tu sei qui" }
                         ?: Marker(map).apply {
                             title = "Tu sei qui"
@@ -175,7 +173,6 @@ fun TrackerScreen(
                 }
             )
 
-            /* Toggle FOLLOW (in alto a destra, sotto la TopBar) */
             AssistChip(
                 onClick = { vm.toggleFollow() },
                 label = { Text(if (s.followMode) "Follow ON" else "Follow OFF") },
@@ -185,7 +182,6 @@ fun TrackerScreen(
                     .padding(top = 12.dp, end = 16.dp)
             )
 
-            /* Pannello zoom verticale (spostato più in alto) */
             Surface(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
@@ -206,11 +202,11 @@ fun TrackerScreen(
                 }
             }
 
-            /* FAB “torna su di me” */
+
             FloatingActionButton(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .padding(end = 16.dp, top = 56.dp), // sotto la topbar
+                    .padding(end = 16.dp, top = 56.dp),
                 onClick = {
                     val map = mapRef.value ?: return@FloatingActionButton
                     val loc = (s.snappedCurrent ?: s.current) ?: return@FloatingActionButton
@@ -220,7 +216,7 @@ fun TrackerScreen(
                 containerColor = colors.primary
             ) { Icon(Icons.Default.PersonPinCircle, contentDescription = "Centrati su di me") }
 
-            /* Bottom card: include stats OSRM + residue live */
+
             Surface(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
@@ -244,7 +240,7 @@ fun TrackerScreen(
                     )
                     Spacer(Modifier.height(8.dp))
 
-                    // STATISTICHE
+
                     if (s.totalDistanceMeters != null && s.totalDurationSeconds != null) {
                         val totKm = s.totalDistanceMeters!! / 1000.0
                         val totMin = (s.totalDurationSeconds!! / 60.0).roundToInt()

@@ -41,11 +41,11 @@ class DatastoreRepository(
         private val SELECTED_DATE_MILLIS_KEY = stringPreferencesKey("selectedDateMillis")
         private val SHOW_TIMER_POPUP_KEY = stringPreferencesKey("show_timer_popup")
 
-        // 🔹 prefisso per chiave data di inizio per utente
+
         private fun startDateKey(email: String) =
             stringPreferencesKey("first_open_date_millis_$email")
 
-        // 🔹 chiave legacy globale (per migrazione)
+
         private val LEGACY_START_DATE_KEY = stringPreferencesKey("first_open_date_millis")
     }
 
@@ -110,7 +110,7 @@ class DatastoreRepository(
         prefs[B6_KEY] = user.b6.toString()
     }
 
-    // 🔹 Logout: rimuove solo dati utente, NON data di inizio
+
     suspend fun removeUser() = dataStore.edit { prefs ->
         prefs.remove(EMAIL_KEY)
         prefs.remove(PASSWORD_KEY)
@@ -133,7 +133,7 @@ class DatastoreRepository(
         prefs.remove(B6_KEY)
     }
 
-    // 🔹 Data di inizio per utente (migrazione dal legacy se esiste)
+
     suspend fun getOrSetStartDateMillis(todayMillis: Long, email: String): Long {
         val key = startDateKey(email)
         val prefs = dataStore.data.first()
@@ -141,14 +141,14 @@ class DatastoreRepository(
 
         if (current != null) return current.toLong()
 
-        // Migrazione: se esiste chiave legacy, usa quella
+
         val legacy = prefs[LEGACY_START_DATE_KEY]
         if (legacy != null) {
             dataStore.edit { it[key] = legacy }
             return legacy.toLong()
         }
 
-        // Altrimenti, imposta la data odierna
+
         dataStore.edit { it[key] = todayMillis.toString() }
         return todayMillis
     }

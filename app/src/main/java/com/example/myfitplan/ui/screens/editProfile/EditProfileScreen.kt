@@ -46,20 +46,20 @@ import org.koin.androidx.compose.koinViewModel
 fun EditProfileScreen(
     navController: NavController,
     editProfileViewModel: EditProfileViewModel = koinViewModel(),
-    profileViewModel: ProfileViewModel = koinViewModel() // importante: VM condiviso per immagine
+    profileViewModel: ProfileViewModel = koinViewModel()
 ) {
     val editState = editProfileViewModel.editState
     val colors = MaterialTheme.colorScheme
 
     val context = LocalContext.current
 
-    // Stato utente per la foto
+
     val userState by remember { derivedStateOf { profileViewModel.loggedUser } }
 
-    // Dialog gestione foto
+
     var showDialog by remember { mutableStateOf(false) }
 
-    // --- CAMERA/GALLERY HANDLERS ---
+
     val cameraLauncher = rememberCamera { uri ->
         profileViewModel.setProfilePicUrl(userState.user?.email ?: "", uri.toString())
         Toast.makeText(context, "Profile photo updated!", Toast.LENGTH_SHORT).show()
@@ -86,9 +86,9 @@ fun EditProfileScreen(
     } else {
         cameraPermission.launchPermissionRequest()
     }
-    // --- END CAMERA/GALLERY HANDLERS ---
 
-    // Error handling campi
+
+
     var heightError by remember { mutableStateOf(false) }
     var weightError by remember { mutableStateOf(false) }
     var ageError by remember { mutableStateOf(false) }
@@ -124,9 +124,9 @@ fun EditProfileScreen(
                 modifier = Modifier.padding(bottom = 10.dp)
             )
 
-            // --- FOTO PROFILO CAMBIABILE ---
+
             Box(contentAlignment = Alignment.BottomEnd) {
-                // Foto profilo
+
                 ProfileImage(
                     profileImage = userState.user?.pictureUrl?.toUri(),
                     onClick = { showDialog = true }
@@ -150,7 +150,7 @@ fun EditProfileScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // --- INPUT FIELDS, flat senza card ---
+
             OutlinedTextField(
                 value = editState.height,
                 onValueChange = { editProfileViewModel.onValueChange { copy(height = it) } },
@@ -211,7 +211,7 @@ fun EditProfileScreen(
 
             Spacer(modifier = Modifier.height(28.dp))
 
-            // --- BOTTONI ---
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -250,7 +250,7 @@ fun EditProfileScreen(
             Spacer(modifier = Modifier.height(20.dp))
         }
 
-        // --- DIALOG FOTO ---
+
         if (showDialog) {
             AlertDialog(
                 onDismissRequest = { showDialog = false },
@@ -297,7 +297,7 @@ fun EditProfileScreen(
     }
 }
 
-// --- ProfileImage RIUTILIZZATA da ProfileScreen, la puoi estrarre come composable comune se vuoi ---
+
 @Composable
 fun ProfileImage(profileImage: Uri?, onClick: () -> Unit) {
     Box(
@@ -332,7 +332,7 @@ fun ProfileImage(profileImage: Uri?, onClick: () -> Unit) {
     }
 }
 
-// --- Resto dei dropdown e errorText come prima ---
+
 @Composable
 fun GenderDropdown(selected: GenderType, onSelect: (GenderType) -> Unit) {
     var expanded by remember { mutableStateOf(false) }

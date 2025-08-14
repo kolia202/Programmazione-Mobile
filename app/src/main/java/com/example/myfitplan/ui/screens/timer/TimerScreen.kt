@@ -7,7 +7,6 @@ import android.provider.CalendarContract
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.progressSemantics
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -28,7 +27,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.myfitplan.data.database.Exercise
-import com.example.myfitplan.data.database.ExerciseInsideDay
 import com.example.myfitplan.data.database.FastingSession
 import com.example.myfitplan.data.repositories.MyFitPlanRepositories
 import com.example.myfitplan.ui.MyFitPlanRoute
@@ -36,7 +34,6 @@ import com.example.myfitplan.ui.composables.NavBar
 import com.example.myfitplan.ui.composables.NavBarItem
 import com.example.myfitplan.ui.composables.TopBar
 import com.example.myfitplan.utilities.rememberPermission
-import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.max
@@ -399,7 +396,7 @@ fun TomorrowWorkoutCard(
                     textAlign = TextAlign.Center
                 )
             } else {
-                // Lista esercizi scelti
+
                 Column(
                     Modifier
                         .fillMaxWidth()
@@ -521,7 +518,7 @@ fun createCalendarIntent(exercises: List<Exercise>): Intent {
             CalendarContract.Events.DESCRIPTION,
             exercises.joinToString("\n") { it.name }
         )
-        // Data di domani, ora 18:00
+
         val calendar = Calendar.getInstance().apply { add(Calendar.DATE, 1); set(Calendar.HOUR_OF_DAY, 18) }
         putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, calendar.timeInMillis)
         putExtra(CalendarContract.EXTRA_EVENT_END_TIME, calendar.timeInMillis + 60 * 60 * 1000) // 1 ora

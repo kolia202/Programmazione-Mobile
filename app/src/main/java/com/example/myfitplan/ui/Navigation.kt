@@ -42,8 +42,7 @@ import com.example.myfitplan.ui.screens.home.HomeViewModel
 import com.example.myfitplan.ui.screens.home.SummaryScreen
 import com.example.myfitplan.ui.screens.tracker.TrackerScreen
 import com.example.myfitplan.utilities.DateUtils.getTodayDate
-import java.net.URLDecoder
-import java.nio.charset.StandardCharsets
+
 
 sealed interface MyFitPlanRoute {
     @Serializable data object Login : MyFitPlanRoute

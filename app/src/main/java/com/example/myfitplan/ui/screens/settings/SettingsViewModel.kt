@@ -21,7 +21,7 @@ data class SettingsUiState(
     val passwordChangeSuccess: Boolean = false,
     val passwordChangeError: String? = null,
     val loading: Boolean = false,
-    val showTimerPopup: Boolean = true // AGGIUNGI QUESTO
+    val showTimerPopup: Boolean = true
 )
 
 class SettingsViewModel(

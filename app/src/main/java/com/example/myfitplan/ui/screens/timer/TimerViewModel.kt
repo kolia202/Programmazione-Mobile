@@ -195,11 +195,11 @@ class TimerViewModel(
         selectedExercises = emptyList()
     }
 
-    // --- Nuova logica per assegnare il badge "Primo Workout"
+
     private suspend fun awardFirstWorkoutBadgeIfNeeded() {
         val title = "Primo Workout"
 
-        // Creo il badge se non esiste
+
         val existing = badgeDao.getByTitle(title) ?: run {
             val newId = (badgeDao.getMaxBadgeId() ?: 0) + 1
             val badge = Badge(
