@@ -66,8 +66,8 @@ fun EditProfileScreen(
         contract = ActivityResultContracts.GetContent(),
         onResult = { uri: Uri? ->
             uri?.let {
-                saveImageToStorage(it, context.contentResolver)
-                profileViewModel.setProfilePicUrl(userState.user?.email ?: "", it.toString())
+                val saved = saveImageToStorage(it, context.contentResolver)
+                profileViewModel.setProfilePicUrl(userState.user?.email ?: "", saved.toString())
                 Toast.makeText(context, "Profile photo updated!", Toast.LENGTH_SHORT).show()
             }
         }

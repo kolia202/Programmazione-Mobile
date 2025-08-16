@@ -61,8 +61,8 @@ fun ProfileScreen(
         contract = ActivityResultContracts.GetContent(),
         onResult = { uri: Uri? ->
             uri?.let {
-                saveImageToStorage(it, context.contentResolver)
-                profileViewModel.setProfilePicUrl(userState.user?.email ?: "", it.toString())
+                val saved = saveImageToStorage(it, context.contentResolver)
+                profileViewModel.setProfilePicUrl(userState.user?.email ?: "", saved.toString())
             }
         }
     )

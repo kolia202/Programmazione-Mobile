@@ -41,10 +41,11 @@ fun rememberCamera(onPhotoTaken: (uri: Uri) -> Unit): Camera {
         rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { pictureTaken ->
             if (pictureTaken) {
                 capturedImageUri = imageUri
-                saveImageToStorage(capturedImageUri, context.applicationContext.contentResolver)
-                onPhotoTaken(imageUri)
+                val saved = saveImageToStorage(capturedImageUri, context.applicationContext.contentResolver)
+                onPhotoTaken(saved)
             }
         }
+
     val cameraLauncher by remember {
         derivedStateOf {
             object : Camera {
@@ -62,36 +63,44 @@ fun rememberCamera(onPhotoTaken: (uri: Uri) -> Unit): Camera {
 }
 
 fun uriToBitmap(imageUri: Uri, contentResolver: ContentResolver): Bitmap {
-    val bitmap = when {
-        Build.VERSION.SDK_INT < 28 -> {
-            @Suppress("DEPRECATION")
-            MediaStore.Images.Media.getBitmap(contentResolver, imageUri)
-        }
-
-        else -> {
-            val source = ImageDecoder.createSource(contentResolver, imageUri)
-            ImageDecoder.decodeBitmap(source)
-        }
+    return if (Build.VERSION.SDK_INT < 28) {
+        @Suppress("DEPRECATION")
+        MediaStore.Images.Media.getBitmap(contentResolver, imageUri)
+    } else {
+        val source = ImageDecoder.createSource(contentResolver, imageUri)
+        ImageDecoder.decodeBitmap(source)
     }
-    return bitmap
 }
 
 fun saveImageToStorage(
     imageUri: Uri,
     contentResolver: ContentResolver,
     name: String = "IMG_${SystemClock.uptimeMillis()}"
-) {
+): Uri {
     val bitmap = uriToBitmap(imageUri, contentResolver)
 
-    val values = ContentValues()
-    values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-    values.put(MediaStore.Images.Media.DISPLAY_NAME, name)
+    val values = ContentValues().apply {
+        put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+        put(MediaStore.Images.Media.DISPLAY_NAME, name)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/MyFitPlan")
+            put(MediaStore.Images.Media.IS_PENDING, 1)
+        }
+    }
 
-    val savedImageUri =
-        contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
-    val outputStream = savedImageUri?.let { contentResolver.openOutputStream(it) }
+    val savedImageUri = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
         ?: throw FileNotFoundException()
 
-    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
-    outputStream.close()
+    contentResolver.openOutputStream(savedImageUri)?.use { out ->
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 95, out)
+    }
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        val finValues = ContentValues().apply {
+            put(MediaStore.Images.Media.IS_PENDING, 0)
+        }
+        contentResolver.update(savedImageUri, finValues, null, null)
+    }
+
+    return savedImageUri
 }
