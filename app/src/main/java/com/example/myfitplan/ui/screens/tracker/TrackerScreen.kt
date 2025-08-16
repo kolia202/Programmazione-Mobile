@@ -143,9 +143,9 @@ fun TrackerScreen(
                     routeShadow.setPoints(pts)
                     routePrimary.setPoints(pts)
 
-                    val meMarker = map.overlays.filterIsInstance<Marker>().find { it.title == "Tu sei qui" }
+                    val meMarker = map.overlays.filterIsInstance<Marker>().find { it.title == "You are here" }
                         ?: Marker(map).apply {
-                            title = "Tu sei qui"
+                            title = "You are here"
                             setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
                             map.overlays.add(this)
                         }
@@ -158,9 +158,9 @@ fun TrackerScreen(
                         }
                     }
 
-                    val destMarker = map.overlays.filterIsInstance<Marker>().find { it.title == "Destinazione" }
+                    val destMarker = map.overlays.filterIsInstance<Marker>().find { it.title == "Destination" }
                         ?: Marker(map).apply {
-                            title = "Destinazione"
+                            title = "Destination"
                             setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
                             map.overlays.add(this)
                         }
@@ -214,7 +214,7 @@ fun TrackerScreen(
                     map.controller.animateTo(GeoPoint(loc.latitude, loc.longitude))
                 },
                 containerColor = colors.primary
-            ) { Icon(Icons.Default.PersonPinCircle, contentDescription = "Centrati su di me") }
+            ) { Icon(Icons.Default.PersonPinCircle, contentDescription = "Center on me") }
 
 
             Surface(
@@ -233,9 +233,9 @@ fun TrackerScreen(
                 ) {
                     Text(
                         when {
-                            s.destination == null -> "Long press sulla mappa per impostare la destinazione"
-                            s.isRouting -> "Calcolo percorso…"
-                            else -> "Destinazione impostata"
+                            s.destination == null -> "Long press on the map to set the destination"
+                            s.isRouting -> "Route calculation…"
+                            else -> "Destination set"
                         }
                     )
                     Spacer(Modifier.height(8.dp))
@@ -244,12 +244,12 @@ fun TrackerScreen(
                     if (s.totalDistanceMeters != null && s.totalDurationSeconds != null) {
                         val totKm = s.totalDistanceMeters!! / 1000.0
                         val totMin = (s.totalDurationSeconds!! / 60.0).roundToInt()
-                        Text("Totale OSRM: %.2f km • %d min".format(totKm, totMin), style = MaterialTheme.typography.bodyMedium)
+                        Text("Total: %.2f km • %d min".format(totKm, totMin), style = MaterialTheme.typography.bodyMedium)
                     }
                     if (s.distanceRemaining != null && s.etaSeconds != null) {
                         val remKm = s.distanceRemaining!! / 1000.0
                         val remMin = (s.etaSeconds!! / 60.0).roundToInt()
-                        Text("Rimanenti: %.2f km • ~%d min".format(remKm, remMin), style = MaterialTheme.typography.bodyMedium)
+                        Text("Remaining: %.2f km • ~%d min".format(remKm, remMin), style = MaterialTheme.typography.bodyMedium)
                     }
 
                     Spacer(Modifier.height(8.dp))
@@ -260,12 +260,12 @@ fun TrackerScreen(
                         Button(
                             onClick = { vm.startRoutingFromCurrent(navigationMode = true) },
                             enabled = s.destination != null && !s.isRouting
-                        ) { Text(if (s.isRouting) "Calcolo..." else "Ricalcola") }
+                        ) { Text(if (s.isRouting) "Calculation..." else "Recalculate") }
 
                         OutlinedButton(
                             onClick = { vm.clearRouting() },
                             enabled = s.destination != null || s.routePath.isNotEmpty()
-                        ) { Text("Cancella") }
+                        ) { Text("Cancel") }
                     }
 
                     if (s.routingError != null) {

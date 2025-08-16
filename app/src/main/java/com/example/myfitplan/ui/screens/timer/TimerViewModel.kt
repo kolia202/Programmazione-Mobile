@@ -145,8 +145,8 @@ class TimerViewModel(
             manager.createNotificationChannel(channel)
         }
         val notification = NotificationCompat.Builder(context, channelId)
-            .setContentTitle("Workout completato!")
-            .setContentText("Complimenti, hai finito il timer del workout.")
+            .setContentTitle("Workout Completed!")
+            .setContentText("Great job — you finished the workout timer.")
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .build()
         manager.notify(2222, notification)

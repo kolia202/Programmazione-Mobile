@@ -109,7 +109,7 @@ fun TimerScreen(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(8.dp))
 
             Text(
                 "Workout Timer",
@@ -297,6 +297,8 @@ fun TimerScreen(
 
             val favorites = allExercises.filter { it.email == userEmail && it.isFavorite }
 
+            Spacer(Modifier.height(24.dp))
+
             TomorrowWorkoutCard(
                 favorites = favorites,
                 selected = selectedExercises,
@@ -364,9 +366,10 @@ fun TomorrowWorkoutCard(
     Card(
         shape = RoundedCornerShape(22.dp),
         elevation = CardDefaults.cardElevation(6.dp),
-        colors = CardDefaults.cardColors(containerColor = colors.surface),
+        colors = CardDefaults.cardColors(containerColor = colors.surfaceVariant),
         modifier = Modifier
             .fillMaxWidth()
+            .padding(horizontal = 12.dp)
             .padding(vertical = 14.dp)
     ) {
         Column(
@@ -584,8 +587,9 @@ fun WorkoutHistoryRow(session: FastingSession, index: Int) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        colors = CardDefaults.cardColors(containerColor = colors.surface),
+            .padding(vertical = 4.dp)
+            .padding(horizontal = 12.dp),
+        colors = CardDefaults.cardColors(containerColor = colors.surfaceVariant),
         shape = RoundedCornerShape(18.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {

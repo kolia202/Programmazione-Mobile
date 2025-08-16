@@ -113,7 +113,7 @@ class TrackerViewModel(
             val current = getCurrentOrLastKnown()
             val dest = _state.value.destination
             if (current == null || dest == null) {
-                _state.update { it.copy(routingError = "Punto corrente o destinazione non disponibili.") }
+                _state.update { it.copy(routingError = "Current point or destination not available.") }
                 return@launch
             }
             _state.update { it.copy(current = current, startPoint = current, isRouting = true, routingError = null) }
@@ -164,7 +164,7 @@ class TrackerViewModel(
         val remaining = (total - monotoneMeters).coerceAtLeast(0.0)
 
 
-        val avgSpeed = (s.totalDurationSeconds / s.totalDistanceMeters).coerceAtLeast(1.0 / 3.0) // clamp
+        val avgSpeed = (s.totalDurationSeconds / s.totalDistanceMeters).coerceAtLeast(1.0 / 3.0)
         val remSeconds = remaining * avgSpeed
 
         _state.update {
@@ -231,7 +231,7 @@ class TrackerViewModel(
             tenKmAwardTriggered = false
             true
         } catch (e: Exception) {
-            _state.update { it.copy(isRouting = false, routingError = "Impossibile calcolare il percorso: ${e.message}") }
+            _state.update { it.copy(isRouting = false, routingError = "Unable to calculate the route: ${e.message}") }
             false
         }
     }
