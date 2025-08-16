@@ -65,7 +65,7 @@ fun FoodScreen(
                 .fillMaxSize()
                 .background(colors.background)
                 .padding(padding)
-                .padding(horizontal = 20.dp)
+                .padding(horizontal = 18.dp)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {

@@ -17,10 +17,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.myfitplan.data.database.MealType
 
@@ -41,8 +41,9 @@ fun SummaryScreen(
     val allDates = remember(summaryList) { summaryList.map { it.formattedDate } }
 
     val filteredList = summaryList.filter { day ->
-        val inDateRange = (fromDate == null || allDates.indexOf(day.formattedDate) >= allDates.indexOf(fromDate))
-                && (toDate == null || allDates.indexOf(day.formattedDate) <= allDates.indexOf(toDate))
+        val inDateRange =
+            (fromDate == null || allDates.indexOf(day.formattedDate) >= allDates.indexOf(fromDate)) &&
+                    (toDate == null || allDates.indexOf(day.formattedDate) <= allDates.indexOf(toDate))
         val hasMeals = !showOnlyWithMeals || MealType.entries.any { (day.meals[it]?.isNotEmpty() == true) }
         inDateRange && hasMeals
     }
@@ -50,7 +51,16 @@ fun SummaryScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("History Summary") },
+                title = {
+                    Text(
+                        "History Summary",
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 26.sp,
+                            color = colors.primary
+                        )
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
@@ -123,8 +133,7 @@ fun SummaryScreen(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = 6.dp)
-                    .padding(horizontal = 8.dp),
+                    .padding(top = 6.dp, start = 8.dp, end = 8.dp, bottom = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 items(filteredList) { item ->
@@ -143,11 +152,10 @@ fun ExpandableSummaryDayCard(item: DailySummary) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .shadow(8.dp, RoundedCornerShape(22.dp))
             .clickable { expanded = !expanded },
         shape = RoundedCornerShape(22.dp),
-        colors = CardDefaults.cardColors(containerColor = colors.surface),
-        elevation = CardDefaults.cardElevation(6.dp)
+        colors = CardDefaults.cardColors(containerColor = colors.surfaceVariant),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(
             modifier = Modifier
@@ -206,8 +214,7 @@ fun ExpandableSummaryDayCard(item: DailySummary) {
                                     Icon(
                                         imageVector = getMealIcon(mealType),
                                         contentDescription = mealType.string,
-                                        tint = colors.primary,
-                                        modifier = Modifier.size(22.dp)
+                                        tint = colors.primary
                                     )
                                 }
                                 Spacer(Modifier.width(8.dp))

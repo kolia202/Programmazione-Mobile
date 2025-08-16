@@ -67,7 +67,7 @@ fun HomeScreen(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = "Today",
                 style = MaterialTheme.typography.headlineMedium.copy(
@@ -205,7 +205,7 @@ fun MealCard(
             .padding(vertical = 8.dp),
         shape = RoundedCornerShape(22.dp),
         elevation = CardDefaults.cardElevation(4.dp),
-        colors = CardDefaults.cardColors(containerColor = colors.surface)
+        colors = CardDefaults.cardColors(containerColor = colors.surfaceVariant)
     ) {
         Row(
             modifier = Modifier
@@ -295,7 +295,7 @@ fun HomeSummaryCard(
             .padding(vertical = 6.dp)
             .heightIn(min = 200.dp),
         shape = RoundedCornerShape(22.dp),
-        colors = CardDefaults.cardColors(containerColor = colors.surface),
+        colors = CardDefaults.cardColors(containerColor = colors.surfaceVariant),
         elevation = CardDefaults.cardElevation(6.dp)
     ) {
         Column(
@@ -329,7 +329,7 @@ fun HomeSummaryCard(
                         modifier = Modifier.size(84.dp),
                         color = colors.primary,
                         strokeWidth = 8.dp,
-                        trackColor = colors.secondaryContainer,
+                        trackColor = colors.onSurfaceVariant.copy(alpha = 0.25f),
                     )
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text("$kcalLeft", fontWeight = FontWeight.Bold, fontSize = 23.sp, color = colors.onSurface)
@@ -384,13 +384,14 @@ fun MacroProgressBar(label: String, value: Int, target: Int) {
             color = colors.onSurface,
             modifier = Modifier.padding(bottom = 2.dp)
         )
+
         LinearProgressIndicator(
             progress = { progress },
             modifier = Modifier
                 .width(70.dp)
                 .height(8.dp),
             color = colors.primary,
-            trackColor = colors.secondaryContainer,
+            trackColor = colors.onSurfaceVariant.copy(alpha = 0.35f),
         )
         Text(
             text = "$value / $target g",
@@ -412,7 +413,7 @@ private fun OutdoorTrackingCard(onClick: () -> Unit) {
             .clickable { onClick() },
         shape = RoundedCornerShape(22.dp),
         elevation = CardDefaults.cardElevation(4.dp),
-        colors = CardDefaults.cardColors(containerColor = colors.surface)
+        colors = CardDefaults.cardColors(containerColor = colors.surfaceVariant)
     ) {
         Row(
             modifier = Modifier
@@ -442,14 +443,14 @@ private fun OutdoorTrackingCard(onClick: () -> Unit) {
                     color = colors.onSurface
                 )
                 Text(
-                    text = "GPS + Mappa + Percorso in tempo reale",
+                    text = "GPS + Map + Real-time route",
                     style = MaterialTheme.typography.bodyMedium,
                     color = colors.onSurfaceVariant
                 )
             }
             AssistChip(
                 onClick = onClick,
-                label = { Text("Apri") }
+                label = { Text("Open") }
             )
         }
     }

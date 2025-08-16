@@ -67,7 +67,7 @@ fun MyFitPlanNavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = MyFitPlanRoute.Food,
+        startDestination = MyFitPlanRoute.Home,
         modifier = modifier
     ) {
         composable<MyFitPlanRoute.Login> {
