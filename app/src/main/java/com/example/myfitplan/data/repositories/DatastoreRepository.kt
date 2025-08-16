@@ -41,10 +41,8 @@ class DatastoreRepository(
         private val SELECTED_DATE_MILLIS_KEY = stringPreferencesKey("selectedDateMillis")
         private val SHOW_TIMER_POPUP_KEY = stringPreferencesKey("show_timer_popup")
 
-
         private fun startDateKey(email: String) =
             stringPreferencesKey("first_open_date_millis_$email")
-
 
         private val LEGACY_START_DATE_KEY = stringPreferencesKey("first_open_date_millis")
     }
@@ -110,7 +108,6 @@ class DatastoreRepository(
         prefs[B6_KEY] = user.b6.toString()
     }
 
-
     suspend fun removeUser() = dataStore.edit { prefs ->
         prefs.remove(EMAIL_KEY)
         prefs.remove(PASSWORD_KEY)
@@ -141,17 +138,11 @@ class DatastoreRepository(
 
         if (current != null) return current.toLong()
 
-
-        val legacy = prefs[LEGACY_START_DATE_KEY]
-        if (legacy != null) {
-            dataStore.edit { it[key] = legacy }
-            return legacy.toLong()
-        }
-
-
         dataStore.edit { it[key] = todayMillis.toString() }
         return todayMillis
     }
+
+    suspend fun dropLegacyStartDate() = dataStore.edit { it.remove(LEGACY_START_DATE_KEY) }
 
     fun getUserEmail(): Flow<String> {
         return dataStore.data.map { preferences -> preferences[EMAIL_KEY] ?: "" }

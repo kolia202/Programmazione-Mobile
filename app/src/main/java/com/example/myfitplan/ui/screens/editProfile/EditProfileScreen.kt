@@ -326,7 +326,7 @@ fun ProfileImage(profileImage: Uri?, onClick: () -> Unit) {
 fun GenderDropdown(selected: GenderType, onSelect: (GenderType) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     OutlinedTextField(
-        value = englishGender(selected), // UI-only English label
+        value = englishGender(selected),
         onValueChange = {},
         readOnly = true,
         label = { Text("Gender") },
@@ -349,9 +349,9 @@ fun GenderDropdown(selected: GenderType, onSelect: (GenderType) -> Unit) {
     ) {
         GenderType.entries.forEach {
             DropdownMenuItem(
-                text = { Text(englishGender(it)) }, // English label
+                text = { Text(englishGender(it)) },
                 onClick = {
-                    onSelect(it) // <-- valore interno invariato
+                    onSelect(it)
                     expanded = false
                 }
             )
@@ -363,7 +363,7 @@ fun GenderDropdown(selected: GenderType, onSelect: (GenderType) -> Unit) {
 fun ActivityDropdown(selected: ActivityType, onSelect: (ActivityType) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     OutlinedTextField(
-        value = englishActivity(selected), // UI-only English label
+        value = englishActivity(selected),
         onValueChange = {},
         readOnly = true,
         label = { Text("Activity Level") },
@@ -386,9 +386,9 @@ fun ActivityDropdown(selected: ActivityType, onSelect: (ActivityType) -> Unit) {
     ) {
         ActivityType.entries.forEach {
             DropdownMenuItem(
-                text = { Text(englishActivity(it)) }, // English label
+                text = { Text(englishActivity(it)) },
                 onClick = {
-                    onSelect(it) // <-- valore interno invariato
+                    onSelect(it)
                     expanded = false
                 }
             )
@@ -400,7 +400,7 @@ fun ActivityDropdown(selected: ActivityType, onSelect: (ActivityType) -> Unit) {
 fun GoalDropdown(selected: GoalType, onSelect: (GoalType) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     OutlinedTextField(
-        value = englishGoal(selected), // UI-only English label
+        value = englishGoal(selected),
         onValueChange = {},
         readOnly = true,
         label = { Text("Goal") },
@@ -423,9 +423,9 @@ fun GoalDropdown(selected: GoalType, onSelect: (GoalType) -> Unit) {
     ) {
         GoalType.entries.forEach {
             DropdownMenuItem(
-                text = { Text(englishGoal(it)) }, // English label
+                text = { Text(englishGoal(it)) },
                 onClick = {
-                    onSelect(it) // <-- valore interno invariato
+                    onSelect(it)
                     expanded = false
                 }
             )
