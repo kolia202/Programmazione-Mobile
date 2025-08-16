@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.myfitplan.data.database.Exercise
 import com.example.myfitplan.data.repositories.MyFitPlanRepositories
 import com.example.myfitplan.utilities.seedDefaultExercises
+import com.example.myfitplan.utilities.syncDefaultExerciseDescriptions
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -32,6 +33,8 @@ class ExerciseViewModel(
             val mineFirst = myFlow.first()
             if (mineFirst.isEmpty()) {
                 seedDefaultExercises(repo, userEmail)
+            } else {
+                syncDefaultExerciseDescriptions(repo, userEmail)
             }
 
             myFlow.collect { mine ->

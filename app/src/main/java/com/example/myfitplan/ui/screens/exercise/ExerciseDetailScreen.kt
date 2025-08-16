@@ -2,6 +2,8 @@ package com.example.myfitplan.ui.screens.exercise
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
@@ -27,7 +29,7 @@ fun ExerciseDetailScreen(
             TopAppBar(
                 title = {
                     Text(
-                        "Exercise",
+                        "Exercise Details",
                         style = MaterialTheme.typography.headlineSmall.copy(
                             fontWeight = FontWeight.Bold,
                             fontSize = 26.sp,
@@ -48,8 +50,9 @@ fun ExerciseDetailScreen(
                 .fillMaxSize()
                 .padding(padding)
                 .background(colors.background)
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.Start
         ) {
             Text(
                 text = exercise.name,
@@ -58,12 +61,24 @@ fun ExerciseDetailScreen(
                 ),
                 color = colors.primary
             )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = exercise.category,
+                style = MaterialTheme.typography.titleMedium,
+                color = colors.secondary
+            )
+
             Spacer(modifier = Modifier.height(16.dp))
+
             Text(
                 text = exercise.description,
                 style = MaterialTheme.typography.bodyLarge,
                 color = colors.onSurface
             )
+
+            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }

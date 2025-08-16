@@ -1,26 +1,40 @@
 package com.example.myfitplan.ui.screens.badge
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.DirectionsRun
 import androidx.compose.material.icons.rounded.EmojiEvents
 import androidx.compose.material.icons.rounded.FitnessCenter
 import androidx.compose.material.icons.rounded.Restaurant
-import androidx.compose.material3.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -33,17 +47,6 @@ import com.example.myfitplan.ui.composables.NavBarItem
 import com.example.myfitplan.ui.composables.TopBarBadge
 import com.example.myfitplan.ui.screens.home.HomeViewModel
 import org.koin.androidx.compose.koinViewModel
-import androidx.compose.foundation.Canvas
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.platform.LocalDensity
-
 
 @Composable
 fun BadgeScreen(
@@ -52,7 +55,6 @@ fun BadgeScreen(
 ) {
     val colors = MaterialTheme.colorScheme
     var selectedTab by remember { mutableStateOf(NavBarItem.Home) }
-
 
     val firstBadge by badgeViewModel.firstBadge.collectAsState()
     val earnedFirst by badgeViewModel.earnedFirst.collectAsState()
@@ -66,31 +68,30 @@ fun BadgeScreen(
     val tenKmBadge by badgeViewModel.tenKmBadge.collectAsState()
     val earnedTenKm by badgeViewModel.earnedTenKm.collectAsState()
 
-
     val items = listOf(
         BadgeGridItem(
             badge = firstBadge,
             earned = earnedFirst != null,
             date = earnedFirst?.badgeUser?.dataAchieved,
-            howTo = "Sblocchi “${firstBadge.title}” effettuando il tuo primo login dopo la registrazione."
+            howTo = "Unlock “${englishTitleFor(firstBadge)}” by logging in for the first time after signing up."
         ),
         BadgeGridItem(
             badge = mealBadge,
             earned = earnedMeal != null,
             date = earnedMeal?.badgeUser?.dataAchieved,
-            howTo = "Aggiungi almeno 1 cibo in ciascuna categoria: Breakfast, Lunch, Dinner e Snack."
+            howTo = "Add at least 1 food to each category: Breakfast, Lunch, Dinner, and Snack."
         ),
         BadgeGridItem(
             badge = workoutBadge,
             earned = earnedWorkout != null,
             date = earnedWorkout?.badgeUser?.dataAchieved,
-            howTo = "Completa il tuo primo workout (timer completato)."
+            howTo = "Complete your first workout (timer finished)."
         ),
         BadgeGridItem(
             badge = tenKmBadge,
             earned = earnedTenKm != null,
             date = earnedTenKm?.badgeUser?.dataAchieved,
-            howTo = "Completa un percorso di almeno 10 km con la navigazione fino alla destinazione."
+            howTo = "Complete a route of at least 10 km using navigation to the destination."
         )
     )
 
@@ -111,37 +112,40 @@ fun BadgeScreen(
             )
         }
     ) { padding ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
                 .background(colors.background)
-                .padding(horizontal = 16.dp)
+                .padding(padding)
         ) {
-            Spacer(Modifier.height(8.dp))
-            Text(
-                "Badge e Grafici",
-                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-                color = colors.primary,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center
-            )
-            Spacer(Modifier.height(12.dp))
-
             val gridState = rememberLazyGridState()
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
                 state = gridState,
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(bottom = 96.dp)
+                contentPadding = PaddingValues(top = 8.dp, start = 16.dp, end = 16.dp, bottom = 48.dp)
             ) {
+
+                item(span = { GridItemSpan(2) }) {
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        "Badges & Charts",
+                        style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+                        color = colors.primary,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(Modifier.height(12.dp))
+                }
+
                 items(items) { it ->
                     BadgeGridCard(
                         item = it,
                         onClick = { infoDialog = it }
                     )
                 }
+
                 item(span = { GridItemSpan(2) }) {
                     Spacer(Modifier.height(12.dp))
                     WeeklyCaloriesChartSection()
@@ -153,7 +157,7 @@ fun BadgeScreen(
 
     infoDialog?.let { item ->
         InfoDialog(
-            title = item.badge.title,
+            title = englishTitleFor(item.badge),
             text = item.howTo,
             onDismiss = { infoDialog = null }
         )
@@ -166,6 +170,47 @@ private data class BadgeGridItem(
     val date: String?,
     val howTo: String
 )
+
+private fun badgeKey(b: Badge): String {
+    val t = b.title.trim().lowercase()
+    val i = b.icon.trim().lowercase()
+    return when {
+
+        "dumbbell" in i || "workout" in t || "allenamento" in t -> "first_workout"
+
+        "restaurant" in i || "pasti" in t || "meals" in t -> "all_meals"
+
+        "route" in i || ("10" in t && "km" in t) -> "ten_km"
+
+        "trophy" in i || "🏆" in i || "login" in t || "accesso" in t -> "first_login"
+        else -> "unknown"
+    }
+}
+
+private fun englishTitleFor(badge: Badge): String = when (badgeKey(badge)) {
+    "first_login"   -> "First Login"
+    "all_meals"     -> "All Meals"
+    "first_workout" -> "First Workout"
+    "ten_km"        -> "10 km"
+    else            -> badge.title
+}
+
+private fun englishDescriptionFor(badge: Badge): String = when (badgeKey(badge)) {
+    "first_login"   -> "You logged in for the first time!"
+    "all_meals"     -> "Add at least one food to Breakfast, Lunch, Dinner, and Snack."
+    "first_workout" -> "You completed your first workout!"
+    "ten_km"        -> "Complete a route of at least 10 km for the first time."
+    else            -> badge.description
+}
+
+@Composable
+private fun iconFor(badge: Badge) = when (badgeKey(badge)) {
+    "first_login"   -> Icons.Rounded.EmojiEvents
+    "all_meals"     -> Icons.Rounded.Restaurant
+    "first_workout" -> Icons.Rounded.FitnessCenter
+    "ten_km"        -> Icons.Rounded.DirectionsRun
+    else            -> Icons.Rounded.EmojiEvents
+}
 
 @Composable
 private fun BadgeGridCard(
@@ -183,8 +228,6 @@ private fun BadgeGridCard(
         if (item.earned) colors.onPrimaryContainer.copy(alpha = 0.85f) else colors.onSurfaceVariant
     val dateColor =
         if (item.earned) colors.onPrimaryContainer.copy(alpha = 0.75f) else colors.onSurfaceVariant
-    val borderColor =
-        if (item.earned) colors.primary else colors.outline
 
     ElevatedCard(
         shape = RoundedCornerShape(20.dp),
@@ -206,32 +249,31 @@ private fun BadgeGridCard(
                 .padding(14.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             Box(
                 modifier = Modifier
                     .size(60.dp)
                     .clip(CircleShape)
                     .background(
-                        if (item.earned) colors.primary else colors.surface
+                        if (item.earned) colors.primary else colors.surfaceVariant
                     ),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = iconFor(item.badge),
-                    contentDescription = item.badge.title,
+                    contentDescription = englishTitleFor(item.badge),
                     tint = if (item.earned) colors.onPrimary else colors.onSurfaceVariant
                 )
             }
 
             Spacer(Modifier.height(8.dp))
             Text(
-                item.badge.title,
+                englishTitleFor(item.badge),
                 style = MaterialTheme.typography.titleSmall,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
             Text(
-                item.badge.description,
+                englishDescriptionFor(item.badge),
                 style = MaterialTheme.typography.bodySmall,
                 color = descriptionColor,
                 maxLines = 3,
@@ -242,7 +284,7 @@ private fun BadgeGridCard(
 
             if (item.earned && item.date != null) {
                 Text(
-                    "Data: ${item.date}",
+                    "Date: ${item.date}",
                     style = MaterialTheme.typography.labelSmall,
                     color = dateColor,
                     maxLines = 1,
@@ -259,34 +301,21 @@ private fun InfoDialog(title: String, text: String, onDismiss: () -> Unit) {
         onDismissRequest = onDismiss,
         title = { Text(title) },
         text = { Text(text) },
-        confirmButton = { TextButton(onClick = onDismiss) { Text("Ok") } }
+        confirmButton = { TextButton(onClick = onDismiss) { Text("OK") } }
     )
-}
-
-
-@Composable
-private fun iconFor(badge: Badge) = when (badge.icon.lowercase()) {
-    "trophy" -> Icons.Rounded.EmojiEvents
-    "restaurant" -> Icons.Rounded.Restaurant
-    "dumbbell" -> Icons.Rounded.FitnessCenter
-    "route" -> Icons.Rounded.DirectionsRun
-    else -> Icons.Rounded.EmojiEvents
 }
 
 @Composable
 private fun WeeklyCaloriesChartSection(
     homeVM: HomeViewModel = koinViewModel()
 ) {
-
     LaunchedEffect(Unit) { homeVM.loadSummaryHistory() }
 
     val colors = MaterialTheme.colorScheme
     val history by homeVM.summaryHistory.collectAsState()
     val uiState by homeVM.uiState.collectAsState()
 
-
     val kcalTarget = uiState.user?.dailyCalories ?: 2000
-
 
     val allDays = remember(history, uiState.summary, kcalTarget) {
         val past = history.map {
@@ -305,7 +334,6 @@ private fun WeeklyCaloriesChartSection(
         past + today
     }
 
-
     val last7 = allDays.takeLast(minOf(7, allDays.size))
     if (last7.isEmpty()) return
 
@@ -316,19 +344,19 @@ private fun WeeklyCaloriesChartSection(
 
     Card(
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = colors.surface),
+        colors = CardDefaults.cardColors(containerColor = colors.surfaceVariant),
         elevation = CardDefaults.cardElevation(8.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(Modifier.padding(16.dp)) {
             Text(
-                "Andamento calorie (ultimi 7 giorni)",
+                "Calories Trend (last 7 days)",
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                 color = colors.primary
             )
             Spacer(Modifier.height(6.dp))
             Text(
-                text = "Giorni registrati: ${labeled.size}/7 • Target: $kcalTarget kcal",
+                text = "Logged days: ${labeled.size}/7 • Target: $kcalTarget kcal",
                 style = MaterialTheme.typography.labelMedium,
                 color = colors.onSurfaceVariant
             )
@@ -380,7 +408,6 @@ private fun WeeklyCaloriesChart(
             val barGroupWidth = chartWidth / data.size
             val barWidth = barGroupWidth / 3
 
-
             var yTick = 0
             while (yTick <= maxY) {
                 val y = chartHeight - (yTick / maxY.toFloat()) * chartHeight
@@ -396,7 +423,7 @@ private fun WeeklyCaloriesChart(
                         0f,
                         y + 4f,
                         android.graphics.Paint().apply {
-                            color = android.graphics.Color.GRAY
+                            color = colors.onSurfaceVariant.toArgb()
                             textSize = 28f
                         }
                     )
@@ -404,10 +431,8 @@ private fun WeeklyCaloriesChart(
                 yTick += step
             }
 
-
             data.forEachIndexed { index, day ->
                 val xBase = yAxisWidthPx + index * barGroupWidth + barWidth / 2
-
 
                 val eatenHeight = (day.eaten / maxY.toFloat()) * chartHeight
                 drawRect(
@@ -431,18 +456,17 @@ private fun WeeklyCaloriesChart(
                         xBase,
                         chartHeight - eatenHeight - with(density) { 6.dp.toPx() },
                         android.graphics.Paint().apply {
-                            color = android.graphics.Color.DKGRAY
+                            color = colors.onSurface.toArgb()
                             textSize = 26f
                             textAlign = android.graphics.Paint.Align.LEFT
                         }
                     )
                 }
 
-
                 val targetHeight = (day.target / maxY.toFloat()) * chartHeight
                 val xTarget = xBase + barWidth + with(density) { 4.dp.toPx() }
                 drawRect(
-                    color = Color.Red,
+                    color = colors.secondary,
                     topLeft = Offset(xTarget, chartHeight - targetHeight),
                     size = Size(barWidth, targetHeight)
                 )
@@ -453,7 +477,7 @@ private fun WeeklyCaloriesChart(
                         xTarget,
                         chartHeight - targetHeight - with(density) { 6.dp.toPx() },
                         android.graphics.Paint().apply {
-                            color = android.graphics.Color.DKGRAY
+                            color = colors.onSurface.toArgb()
                             textSize = 26f
                             textAlign = android.graphics.Paint.Align.LEFT
                         }
@@ -464,7 +488,6 @@ private fun WeeklyCaloriesChart(
 
         Spacer(Modifier.height(8.dp))
 
-
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -473,23 +496,22 @@ private fun WeeklyCaloriesChart(
         ) {
             data.forEach { day ->
                 Text(
-                    text = day.displayLabel + if (day.isToday) " (oggi)" else "",
+                    text = day.displayLabel + if (day.isToday) " (today)" else "",
                     style = MaterialTheme.typography.labelSmall,
-                    color = if (day.isToday) colors.tertiary else colors.onSurfaceVariant
+                    color = if (day.isToday) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
 
         Spacer(Modifier.height(16.dp))
 
-
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
         ) {
-            LegendDot("Assunte", colors.primary, colors.onSurface)
+            LegendDot("Consumed", MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.onSurface)
             Spacer(Modifier.width(24.dp))
-            LegendDot("Target", Color.Red, colors.onSurface)
+            LegendDot("Target", MaterialTheme.colorScheme.secondary, MaterialTheme.colorScheme.onSurface)
         }
     }
 }
@@ -519,4 +541,3 @@ private fun LegendDot(
         Text(text, style = MaterialTheme.typography.labelMedium, color = textColor)
     }
 }
-

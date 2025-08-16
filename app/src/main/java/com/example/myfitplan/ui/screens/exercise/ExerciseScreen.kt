@@ -63,7 +63,7 @@ fun ExerciseScreen(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
+            Spacer(Modifier.height(8.dp))
             Text(
                 text = "Exercises",
                 style = MaterialTheme.typography.headlineMedium.copy(
@@ -77,7 +77,6 @@ fun ExerciseScreen(
                     .padding(bottom = 8.dp)
             )
 
-
             FilterChipsRow(
                 categories = state.categories,
                 selected = state.selectedCategory,
@@ -86,19 +85,16 @@ fun ExerciseScreen(
 
             Spacer(Modifier.height(14.dp))
 
-
             OutlinedTextField(
                 value = state.searchQuery,
                 onValueChange = viewModel::onSearch,
                 leadingIcon = { Icon(Icons.Filled.Search, contentDescription = "Search") },
                 label = { Text("Search exercise") },
                 singleLine = true,
-                modifier = Modifier
-                    .fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(Modifier.height(18.dp))
-
 
             if (state.favorites.isNotEmpty()) {
                 Text(
@@ -129,8 +125,8 @@ fun ExerciseScreen(
             ExerciseList(
                 exercises = state.filteredExercises,
                 onToggleFavorite = viewModel::toggleFavorite,
-                onExerciseClick = {exercise ->
-                    navController.currentBackStackEntry?.savedStateHandle?.set("exercise_detail",exercise)
+                onExerciseClick = { exercise ->
+                    navController.currentBackStackEntry?.savedStateHandle?.set("exercise_detail", exercise)
                     navController.navigate("exercise_detail")
                 }
             )
@@ -196,9 +192,7 @@ fun FavoritesList(
                     .height(IntrinsicSize.Min),
                 shape = RoundedCornerShape(16.dp),
                 elevation = CardDefaults.cardElevation(3.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = colors.surface
-                )
+                colors = CardDefaults.cardColors(containerColor = colors.surface)
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -216,19 +210,13 @@ fun FavoritesList(
                         Text(
                             ex.category,
                             style = MaterialTheme.typography.bodySmall,
-                            color = colors.secondary,
-                        )
-                        Text(
-                            ex.description,
-                            maxLines = 2,
-                            color = colors.onSurface,
-                            fontSize = 14.sp
+                            color = colors.secondary
                         )
                     }
                     IconButton(onClick = { onToggleFavorite(ex) }) {
                         Icon(
                             imageVector = if (ex.isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                            contentDescription = "Remove from favorites",
+                            contentDescription = if (ex.isFavorite) "Remove from favorites" else "Add to favorites",
                             tint = if (ex.isFavorite) colors.primary else colors.onSurfaceVariant
                         )
                     }
@@ -271,9 +259,7 @@ fun ExerciseList(
                     .clickable { onExerciseClick(ex) },
                 shape = RoundedCornerShape(16.dp),
                 elevation = CardDefaults.cardElevation(3.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = colors.surface
-                )
+                colors = CardDefaults.cardColors(containerColor = colors.surface)
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -291,19 +277,14 @@ fun ExerciseList(
                         Text(
                             ex.category,
                             style = MaterialTheme.typography.bodySmall,
-                            color = colors.secondary,
+                            color = colors.secondary
                         )
-                        Text(
-                            ex.description,
-                            maxLines = 2,
-                            color = colors.onSurface,
-                            fontSize = 14.sp
-                        )
+
                     }
                     IconButton(onClick = { onToggleFavorite(ex) }) {
                         Icon(
                             imageVector = if (ex.isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                            contentDescription = "Add to favorites",
+                            contentDescription = if (ex.isFavorite) "Remove from favorites" else "Add to favorites",
                             tint = if (ex.isFavorite) colors.primary else colors.onSurfaceVariant
                         )
                     }

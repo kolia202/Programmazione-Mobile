@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
@@ -50,15 +51,12 @@ fun EditProfileScreen(
 ) {
     val editState = editProfileViewModel.editState
     val colors = MaterialTheme.colorScheme
-
     val context = LocalContext.current
 
 
     val userState by remember { derivedStateOf { profileViewModel.loggedUser } }
 
-
     var showDialog by remember { mutableStateOf(false) }
-
 
     val cameraLauncher = rememberCamera { uri ->
         profileViewModel.setProfilePicUrl(userState.user?.email ?: "", uri.toString())
@@ -87,8 +85,6 @@ fun EditProfileScreen(
         cameraPermission.launchPermissionRequest()
     }
 
-
-
     var heightError by remember { mutableStateOf(false) }
     var weightError by remember { mutableStateOf(false) }
     var ageError by remember { mutableStateOf(false) }
@@ -112,7 +108,7 @@ fun EditProfileScreen(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(34.dp))
+            Spacer(modifier = Modifier.height(40.dp))
 
             Text(
                 text = "Edit Profile",
@@ -124,9 +120,7 @@ fun EditProfileScreen(
                 modifier = Modifier.padding(bottom = 10.dp)
             )
 
-
             Box(contentAlignment = Alignment.BottomEnd) {
-
                 ProfileImage(
                     profileImage = userState.user?.pictureUrl?.toUri(),
                     onClick = { showDialog = true }
@@ -149,7 +143,6 @@ fun EditProfileScreen(
             }
 
             Spacer(modifier = Modifier.height(20.dp))
-
 
             OutlinedTextField(
                 value = editState.height,
@@ -211,7 +204,6 @@ fun EditProfileScreen(
 
             Spacer(modifier = Modifier.height(28.dp))
 
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -250,12 +242,11 @@ fun EditProfileScreen(
             Spacer(modifier = Modifier.height(20.dp))
         }
 
-
         if (showDialog) {
             AlertDialog(
                 onDismissRequest = { showDialog = false },
-                title = { Text("Change profile picture", textAlign = androidx.compose.ui.text.style.TextAlign.Center) },
-                text = { Text("Choose how to change your profile picture", textAlign = androidx.compose.ui.text.style.TextAlign.Center) },
+                title = { Text("Change profile picture", textAlign = TextAlign.Center) },
+                text = { Text("Choose how to change your profile picture", textAlign = TextAlign.Center) },
                 confirmButton = {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -268,7 +259,7 @@ fun EditProfileScreen(
                             },
                             modifier = Modifier.weight(1f)
                         ) {
-                            Text("Gallery", textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                            Text("Gallery", textAlign = TextAlign.Center)
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                         Button(
@@ -278,7 +269,7 @@ fun EditProfileScreen(
                             },
                             modifier = Modifier.weight(1f)
                         ) {
-                            Text("Camera", textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                            Text("Camera", textAlign = TextAlign.Center)
                         }
                     }
                 },
@@ -296,7 +287,6 @@ fun EditProfileScreen(
         }
     }
 }
-
 
 @Composable
 fun ProfileImage(profileImage: Uri?, onClick: () -> Unit) {
@@ -332,12 +322,11 @@ fun ProfileImage(profileImage: Uri?, onClick: () -> Unit) {
     }
 }
 
-
 @Composable
 fun GenderDropdown(selected: GenderType, onSelect: (GenderType) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     OutlinedTextField(
-        value = selected.string,
+        value = englishGender(selected), // UI-only English label
         onValueChange = {},
         readOnly = true,
         label = { Text("Gender") },
@@ -360,9 +349,9 @@ fun GenderDropdown(selected: GenderType, onSelect: (GenderType) -> Unit) {
     ) {
         GenderType.entries.forEach {
             DropdownMenuItem(
-                text = { Text(it.string) },
+                text = { Text(englishGender(it)) }, // English label
                 onClick = {
-                    onSelect(it)
+                    onSelect(it) // <-- valore interno invariato
                     expanded = false
                 }
             )
@@ -374,7 +363,7 @@ fun GenderDropdown(selected: GenderType, onSelect: (GenderType) -> Unit) {
 fun ActivityDropdown(selected: ActivityType, onSelect: (ActivityType) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     OutlinedTextField(
-        value = selected.string,
+        value = englishActivity(selected), // UI-only English label
         onValueChange = {},
         readOnly = true,
         label = { Text("Activity Level") },
@@ -397,9 +386,9 @@ fun ActivityDropdown(selected: ActivityType, onSelect: (ActivityType) -> Unit) {
     ) {
         ActivityType.entries.forEach {
             DropdownMenuItem(
-                text = { Text(it.string) },
+                text = { Text(englishActivity(it)) }, // English label
                 onClick = {
-                    onSelect(it)
+                    onSelect(it) // <-- valore interno invariato
                     expanded = false
                 }
             )
@@ -411,7 +400,7 @@ fun ActivityDropdown(selected: ActivityType, onSelect: (ActivityType) -> Unit) {
 fun GoalDropdown(selected: GoalType, onSelect: (GoalType) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     OutlinedTextField(
-        value = selected.string,
+        value = englishGoal(selected), // UI-only English label
         onValueChange = {},
         readOnly = true,
         label = { Text("Goal") },
@@ -434,9 +423,9 @@ fun GoalDropdown(selected: GoalType, onSelect: (GoalType) -> Unit) {
     ) {
         GoalType.entries.forEach {
             DropdownMenuItem(
-                text = { Text(it.string) },
+                text = { Text(englishGoal(it)) }, // English label
                 onClick = {
-                    onSelect(it)
+                    onSelect(it) // <-- valore interno invariato
                     expanded = false
                 }
             )
@@ -453,4 +442,36 @@ fun ErrorText(text: String) {
         modifier = Modifier
             .padding(start = 4.dp, top = 1.dp, bottom = 2.dp)
     )
+}
+
+private fun englishGender(g: GenderType): String {
+    val s = g.string.trim().lowercase()
+    return when {
+        "masch" in s || s == "male"      -> "Male"
+        "femm" in s || s == "female"     -> "Female"
+        "altro" in s || "other" in s     -> "Other"
+        else                             -> g.string
+    }
+}
+
+private fun englishActivity(a: ActivityType): String {
+    val s = a.string.trim().lowercase()
+    return when {
+        "sedent" in s                     -> "Sedentary"
+        "legger" in s || "light" in s     -> "Lightly Active"
+        "moder" in s                      -> "Moderately Active"
+        "molto" in s || "very" in s       -> "Very Active"
+        "extra" in s || "estrem" in s     -> "Extra Active"
+        else                              -> a.string
+    }
+}
+
+private fun englishGoal(g: GoalType): String {
+    val s = g.string.trim().lowercase()
+    return when {
+        "perder" in s || "lose" in s      -> "Lose Weight"
+        "mant" in s   || "maintain" in s  -> "Maintain Weight"
+        "aument" in s || "gain" in s      -> "Gain Weight"
+        else                              -> g.string
+    }
 }
