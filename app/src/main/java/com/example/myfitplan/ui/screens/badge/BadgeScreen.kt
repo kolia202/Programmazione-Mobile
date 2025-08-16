@@ -282,15 +282,6 @@ private fun BadgeGridCard(
 
             Spacer(Modifier.weight(1f))
 
-            if (item.earned && item.date != null) {
-                Text(
-                    "Date: ${item.date}",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = dateColor,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
         }
     }
 }
