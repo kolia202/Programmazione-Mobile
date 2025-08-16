@@ -192,7 +192,7 @@ fun FavoritesList(
                     .height(IntrinsicSize.Min),
                 shape = RoundedCornerShape(16.dp),
                 elevation = CardDefaults.cardElevation(3.dp),
-                colors = CardDefaults.cardColors(containerColor = colors.surface)
+                colors = CardDefaults.cardColors(containerColor = colors.surfaceVariant)
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -259,7 +259,7 @@ fun ExerciseList(
                     .clickable { onExerciseClick(ex) },
                 shape = RoundedCornerShape(16.dp),
                 elevation = CardDefaults.cardElevation(3.dp),
-                colors = CardDefaults.cardColors(containerColor = colors.surface)
+                colors = CardDefaults.cardColors(containerColor = colors.surfaceVariant)
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,

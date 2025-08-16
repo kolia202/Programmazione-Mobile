@@ -67,7 +67,7 @@ fun MyFitPlanNavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = MyFitPlanRoute.Badge,
+        startDestination = MyFitPlanRoute.Exercise,
         modifier = modifier
     ) {
         composable<MyFitPlanRoute.Login> {
