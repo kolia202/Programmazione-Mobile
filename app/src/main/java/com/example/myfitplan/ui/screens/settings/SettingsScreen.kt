@@ -94,21 +94,6 @@ fun SettingsScreen(
             }
 
             Spacer(Modifier.height(8.dp))
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    "Show pop-up when timer ends",
-                    modifier = Modifier.weight(1f),
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Switch(
-                    checked = state.showTimerPopup,
-                    onCheckedChange = { viewModel.onShowTimerPopupChanged(it) }
-                )
-            }
-            Spacer(Modifier.height(8.dp))
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp))
             Text(
