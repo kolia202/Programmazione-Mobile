@@ -428,7 +428,7 @@ fun FoodCardList(
                 shape = RoundedCornerShape(18.dp),
                 elevation = CardDefaults.cardElevation(4.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = colors.surface
+                    containerColor = colors.surfaceVariant
                 )
             ) {
                 Row(

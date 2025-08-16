@@ -127,7 +127,7 @@ class FoodViewModel(
                     _uiState.update { it.copy(error = "Food not found via barcode") }
                 }
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = "Errore nella ricerca: ${e.localizedMessage}") }
+                _uiState.update { it.copy(error = "Search error: ${e.localizedMessage}") }
             } finally {
                 client.close()
             }
@@ -157,7 +157,7 @@ class FoodViewModel(
                     success = true, error = null
                 )}
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = "Errore: ${e.localizedMessage}") }
+                _uiState.update { it.copy(error = "Error: ${e.localizedMessage}") }
             }
         }
     }

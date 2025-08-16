@@ -47,12 +47,12 @@ fun ManageMealScreen(
             .padding(18.dp)
             .verticalScroll(rememberScrollState())
     ) {
-        Text("Gestione ${mealType.string}", fontSize = 26.sp, fontWeight = FontWeight.Bold, color = colors.primary)
+        Text("Manage ${mealType.string}", fontSize = 26.sp, fontWeight = FontWeight.Bold, color = colors.primary)
         Spacer(Modifier.height(10.dp))
 
-        Text("Cibi già aggiunti", fontSize = 20.sp, fontWeight = FontWeight.Medium, color = colors.primary)
+        Text("Added foods", fontSize = 20.sp, fontWeight = FontWeight.Medium, color = colors.primary)
         if (foodsInsideMeal.isEmpty()) {
-            Text("Nessun cibo aggiunto per questo pasto.")
+            Text("No food added for this meal.")
         } else {
             foodsInsideMeal.forEach { fimw ->
                 Card(
@@ -71,7 +71,6 @@ fun ManageMealScreen(
                             Text("${fimw.food.kcalPerc * fimw.foodInsideMeal.quantity} kcal")
                         }
                         IconButton(onClick = {
-
                             viewModel.viewModelScope.launch {
                                 viewModel.repositories.deleteFoodInsideMeal(
                                     date,
@@ -81,7 +80,7 @@ fun ManageMealScreen(
                                 )
                             }
                         }) {
-                            Icon(Icons.Default.Delete, contentDescription = "Rimuovi", tint = colors.error)
+                            Icon(Icons.Default.Delete, contentDescription = "Remove", tint = colors.error)
                         }
                     }
                 }
@@ -90,9 +89,9 @@ fun ManageMealScreen(
 
         Spacer(Modifier.height(22.dp))
 
-        Text("Aggiungi alimento", fontSize = 20.sp, fontWeight = FontWeight.Medium, color = colors.primary)
+        Text("Add food", fontSize = 20.sp, fontWeight = FontWeight.Medium, color = colors.primary)
         if (candidateFoods.isEmpty()) {
-            Text("Nessun alimento disponibile per ${mealType.string}. Puoi aggiungerli dalla sezione 'Foods'.")
+            Text("No foods available for ${mealType.string}. You can add them from the 'Foods' section.")
         } else {
             candidateFoods.forEach { food ->
                 Card(
@@ -118,7 +117,7 @@ fun ManageMealScreen(
                             },
                             shape = RoundedCornerShape(16.dp)
                         ) {
-                            Text("Aggiungi", fontSize = 14.sp)
+                            Text("Add", fontSize = 14.sp)
                         }
                     }
                 }
@@ -131,19 +130,19 @@ fun ManageMealScreen(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             shape = RoundedCornerShape(16.dp)
         ) {
-            Text("Torna alla Home")
+            Text("Back to Home")
         }
     }
 
     if (showAddDialog && addDialogFoodName != null) {
         AlertDialog(
             onDismissRequest = { showAddDialog = false },
-            title = { Text("Aggiungi ${addDialogFoodName} a ${mealType.string}") },
+            title = { Text("Add $addDialogFoodName to ${mealType.string}") },
             text = {
                 OutlinedTextField(
                     value = addDialogQuantity,
                     onValueChange = { addDialogQuantity = it.filter { ch -> ch.isDigit() || ch == '.' } },
-                    label = { Text("Quantità (es: 100)") },
+                    label = { Text("Quantity (e.g., 100)") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
             },
@@ -166,10 +165,10 @@ fun ManageMealScreen(
                             showAddDialog = false
                         }
                     }
-                ) { Text("Aggiungi") }
+                ) { Text("Add") }
             },
             dismissButton = {
-                TextButton(onClick = { showAddDialog = false }) { Text("Annulla") }
+                TextButton(onClick = { showAddDialog = false }) { Text("Cancel") }
             }
         )
     }
