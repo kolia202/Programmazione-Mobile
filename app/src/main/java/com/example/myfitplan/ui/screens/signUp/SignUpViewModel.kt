@@ -27,7 +27,9 @@ data class SignUpUiState(
 
 class SignUpViewModel(
     private val repo: MyFitPlanRepositories,
-    private val datastore: DatastoreRepository
+    private val datastore: DatastoreRepository,
+    private val badgeUserDAO: BadgeUserDAO,
+    private val badgeDao: BadgeDAO
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SignUpUiState())

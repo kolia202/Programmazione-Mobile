@@ -71,7 +71,7 @@ val appModule = module {
 
     viewModel { ThemeViewModel(get()) }
     viewModel { LoginViewModel(get(), get(), get(), get()) }
-    viewModel { SignUpViewModel(get(), get()) }
+    viewModel { SignUpViewModel(get(), get(), get(), get()) }
     viewModel { HomeViewModel(get(), get()) }
     viewModel { ProfileViewModel(get(), get()) }
     viewModel { EditProfileViewModel(get(), get()) }
